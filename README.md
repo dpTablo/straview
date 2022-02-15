@@ -1,5 +1,7 @@
 # straview
-straview는 strava 데이터를 효과적으로 보기 위한 서비스 입니다.
+straview는 strava 데이터를 효과적으로 보기 위한 서비스 입니다. [Strava](https://www.strava.com) 운동기록에 대한 빠른 조회와 지원되지 않는 데이터의 시각화를 제공합니다.
+
+straview 저장소는 straview 서비스의 back-end 구현코드이며, 추후 front-end 의 구현이 진행되는데로 추가될 예정입니다.
 
 ## springdoc
 springdoc Open API를 이용하여 API 명세를 제공합니다.
