@@ -7,7 +7,6 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 
-
 @Entity
 @Table(name = "activity")
 @Data

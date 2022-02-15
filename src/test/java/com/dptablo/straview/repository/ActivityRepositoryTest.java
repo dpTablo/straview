@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.*;
 @ActiveProfiles("test")
 class ActivityRepositoryTest {
     @Autowired
-    private ActivityRepository activityRepository;
+    ActivityRepository activityRepository;
 
     @Test
     void save() {
