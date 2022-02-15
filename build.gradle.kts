@@ -21,6 +21,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.postgresql:postgresql:42.3.2")
 
+    /* authentication */
+    implementation("com.auth0:java-jwt:3.18.3")
+
     /* springdoc */
     //implementation("io.springfox:springfox-boot-starter:3.0.0")
     implementation("org.springdoc:springdoc-openapi-ui:1.6.5")
