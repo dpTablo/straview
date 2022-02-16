@@ -1,24 +1,24 @@
 package com.dptablo.straview.dto;
 
+import com.dptablo.straview.dto.converter.RoleSetToStringConverter;
 import com.dptablo.straview.dto.enumtype.Role;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "\"user\"")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
 @DynamicUpdate
 @Builder
+@Getter
+@Setter
 public class User {
     @Id
     @Column(name = "user_id", unique = true, nullable = false)
@@ -27,7 +27,8 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(name = "roles", nullable = false)
+    @Convert(converter = RoleSetToStringConverter.class)
+    @Builder.Default
+    private final Set<Role> roles = new HashSet<>();
 }
