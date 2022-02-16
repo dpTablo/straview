@@ -9,11 +9,13 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "activity")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @DynamicInsert
 @DynamicUpdate
+@Getter
+@Setter
 public class Activity implements Persistable<Integer> {
     @Transient
     private boolean update;
@@ -42,22 +44,6 @@ public class Activity implements Persistable<Integer> {
 
     @Column(name = "elapsed_time", nullable = false)
     private Integer elapsedTime;
-
-    @Builder
-    public Activity(
-            Integer id, String externalId, Integer uploadId,
-            String name, String startDate, String startDateLocal,
-            Integer movingTime, Integer elapsedTime
-    ) {
-        this.id = id;
-        this.externalId = externalId;
-        this.uploadId = uploadId;
-        this.name = name;
-        this.startDate = startDate;
-        this.startDateLocal = startDateLocal;
-        this.movingTime = movingTime;
-        this.elapsedTime = elapsedTime;
-    }
 
     @Override
     public boolean isNew() {

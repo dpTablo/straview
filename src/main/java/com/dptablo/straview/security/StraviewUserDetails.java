@@ -1,14 +1,17 @@
 package com.dptablo.straview.security;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-@Data
+
 @Builder
+@Getter
+@Setter
 @SuppressWarnings("SpellCheckingInspection")
 public class StraviewUserDetails implements UserDetails {
     private String username;

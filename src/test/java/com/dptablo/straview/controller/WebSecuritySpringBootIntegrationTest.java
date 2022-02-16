@@ -17,6 +17,6 @@ public class WebSecuritySpringBootIntegrationTest {
     @Test
     void apiSubPath_thenForbidden() {
         ResponseEntity<String> result = testRestTemplate.getForEntity("/api/hello", String.class);
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
