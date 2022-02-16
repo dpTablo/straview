@@ -1,9 +1,11 @@
 package com.dptablo.straview.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dptablo.straview.security.jwt.JwtAccessDeniedHandler;
+import com.dptablo.straview.security.jwt.JwtAuthenticationEntryPoint;
+import com.dptablo.straview.security.jwt.JwtRequestFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -11,14 +13,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    private final JwtRequestFilter jwtRequestFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -29,6 +33,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 //                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
 
             .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
 
             .and()
                 .sessionManagement()
@@ -36,8 +42,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
             .and()
                 .authorizeHttpRequests()
-                .antMatchers(HttpMethod.POST, "/login").permitAll()
-                .anyRequest().authenticated();
+                .antMatchers(HttpMethod.POST, "/api/auth/authenticate").permitAll()
+                .anyRequest().authenticated()
+
+            .and().httpBasic().disable();
 
 //            .and()
 //                .formLogin()
@@ -53,7 +61,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
 
-//            .and().httpBasic().disable();
+
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
     }
 

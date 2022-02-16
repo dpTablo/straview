@@ -21,8 +21,10 @@ class JwtAuthenticationControllerTest {
         ResponseEntity signUpResponseEntity = controller.signUp("user1", "1111");
         assertThat(signUpResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        ResponseEntity responseEntity = controller.authenticate("user1", "1111");
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getHeaders().get(HttpHeaders.WWW_AUTHENTICATE)).isNotEmpty();
+        assertThatNoException().isThrownBy(() -> {
+            ResponseEntity responseEntity = controller.authenticate("user1", "1111");
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getHeaders().get(HttpHeaders.WWW_AUTHENTICATE)).isNotEmpty();
+        });
     }
 }

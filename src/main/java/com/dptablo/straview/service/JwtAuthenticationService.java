@@ -11,22 +11,26 @@ import com.dptablo.straview.dto.enumtype.Role;
 import com.dptablo.straview.repository.UserRepository;
 import com.dptablo.straview.security.StraviewUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @PropertySource("classpath:app.properties")
 @RequiredArgsConstructor
-public class AuthenticationService {
+@Slf4j
+public class JwtAuthenticationService {
     @Value("${jwt.privateKey:dptablo_straview}")
     private String PRIVATE_KEY = "dptablo_straview";
 
@@ -39,15 +43,17 @@ public class AuthenticationService {
     private UserRepository userRepository;
 
     @Autowired
-    public AuthenticationService(UserRepository userRepository) {
+    public JwtAuthenticationService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public User signUp(String userId, String password) {
+        Set<Role> roles = Stream.of(Role.USER).collect(Collectors.toCollection(HashSet::new));
+
         User user = User.builder()
                 .userId(userId)
                 .password(password)
-                .role(Role.USER)
+                .roles(roles)
                 .build();
 
         return userRepository.save(user);
@@ -57,33 +63,36 @@ public class AuthenticationService {
         try {
             User user = userRepository.findUserByUserIdAndPassword(userId, password).orElseThrow(NullPointerException::new);
 
-            GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().toString());
-            StraviewUserDetails userDetails = StraviewUserDetails.builder()
-                    .username(user.getUserId())
-                    .password(user.getPassword())
-                    .enable(true)
-                    .authorities(Arrays.asList(authority))
-                    .build();
+            HashSet<GrantedAuthority> authoritySet = user.getRoles().stream()
+                    .map(role -> new SimpleGrantedAuthority(role.toString()))
+                    .collect(Collectors.toCollection(HashSet::new));
 
+            UserDetails userDetails = createUserDetails(user, authoritySet);
             return Optional.of(createToken(userDetails));
         } catch(Exception e) {
             return Optional.empty();
         }
     }
 
-    public boolean verifyToken(UserDetails userDetails, String token) throws JWTVerificationException {
-        Algorithm algorithm = Algorithm.HMAC256(PRIVATE_KEY);
-        JWTVerifier verifier = JWT.require(algorithm)
-                .withIssuer(ISSUER)
-                .build();
-        DecodedJWT decodedJWT = verifier.verify(token);
+    public boolean verifyToken(String token) throws JWTVerificationException {
+        DecodedJWT decodedJWT = decodeToken(token);
+        return decodedJWT.getToken().equals(token);
+    }
 
-        if(decodedJWT.getSubject().equals(userDetails.getUsername())
-                && decodedJWT.getToken().equals(token)
-        ) {
-            return true;
-        } else {
-            return false;
+    public Optional<Authentication> getAuthentication(String token) {
+        try {
+            DecodedJWT decodedJWT = decodeToken(token);
+
+            User user = userRepository.findById(decodedJWT.getSubject()).orElseThrow(NullPointerException::new);
+            Collection<GrantedAuthority> authorityCollection =
+                    user.getRoles().stream()
+                            .map(role -> new SimpleGrantedAuthority(role.toString()))
+                            .collect(Collectors.toSet());
+
+            return Optional.of(new UsernamePasswordAuthenticationToken(user.getUserId(), null, authorityCollection));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Optional.empty();
         }
     }
 
@@ -97,5 +106,22 @@ public class AuthenticationService {
                     System.currentTimeMillis() + (1000 * 60 * JWT_TOKEN_EXPIRY_MINUTES)
                 ))
                 .sign(algorithm);
+    }
+
+    private DecodedJWT decodeToken(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(PRIVATE_KEY);
+        JWTVerifier verifier = JWT.require(algorithm)
+                .withIssuer(ISSUER)
+                .build();
+        return verifier.verify(token);
+    }
+
+    private UserDetails createUserDetails(User user, Collection<? extends GrantedAuthority> authorities) {
+        return StraviewUserDetails.builder()
+                .username(user.getUserId())
+                .password(user.getPassword())
+                .enable(true)
+                .authorities(authorities)
+                .build();
     }
 }
