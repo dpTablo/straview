@@ -13,7 +13,7 @@ spring:
     defer-datasource-initialization: true
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
   devtools:
     livereload:
       enabled: true
@@ -32,6 +32,8 @@ server:
     uri-encoding: UTF-8
     threads:
       max: 200
+  error:
+    include-stacktrace: on_param
 springdoc:
   version: '@project.version@'
   api-docs:
