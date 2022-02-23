@@ -4,7 +4,7 @@ straview 저장소는 straview 서비스의 back-end 구현코드이며, 추후 
 
 ## Strava API
 straview는 [Strava API](https://developers.strava.com/) 를 이용하여 데이터를 가져옵니다. 
-Strava에서 [내 API 애플리케이션](https://www.strava.com/settings/api) 페이지에서 설정한 정보들이 인증에 필요합니다. [app.properties 설정](#app.properties-설정) 에 strava 설정 항목에 인증정보를 설정해야 어플리케이션이 올바르게 구동됩니다.   
+Strava에서 [내 API 애플리케이션](https://www.strava.com/settings/api) 페이지에서 설정한 정보들이 인증에 필요합니다. [app.properties 설정](#appproperties-설정) 에 strava 설정 항목에 인증정보를 설정해야 어플리케이션이 올바르게 구동됩니다.   
 
 자세한 내용은 [Strava API](https://developers.strava.com/) 를 참조해 주십시오.
 
