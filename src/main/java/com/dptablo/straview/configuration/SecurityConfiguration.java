@@ -42,6 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
             .and()
                 .authorizeHttpRequests()
+                .antMatchers(HttpMethod.GET, "/page/OAuth2/strava", "/page/main", "/api/auth/strava/authenticate").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/auth/authenticate").permitAll()
                 .anyRequest().authenticated()
 

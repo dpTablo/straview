@@ -1,5 +1,6 @@
 package com.dptablo.straview.service;
 
+import com.dptablo.straview.ApplicationProperty;
 import com.dptablo.straview.dto.User;
 import com.dptablo.straview.dto.enumtype.Role;
 import com.dptablo.straview.repository.UserRepository;
@@ -21,15 +22,22 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class JwtAuthenticationServiceTest {
+public class JwtAuthenticationServiceTest {
     @InjectMocks
-    JwtAuthenticationService jwtAuthenticationService;
+    private JwtAuthenticationService jwtAuthenticationService;
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
+
+    @Mock
+    private ApplicationProperty applicationProperty;
 
     @Test
-    void authenticate() {
+    public void authenticate() {
+        when(applicationProperty.getPrivateKey()).thenReturn("dptablo_straview");
+        when(applicationProperty.getIssUser()).thenReturn("dptablo:straview");
+        when(applicationProperty.getJwtExpiryMinutes()).thenReturn(60L);
+
         User user = User.builder()
                 .userId("user1")
                 .password("1111")
@@ -47,7 +55,11 @@ class JwtAuthenticationServiceTest {
     }
 
     @Test
-    void verifyToken() {
+    public void verifyToken() {
+        when(applicationProperty.getPrivateKey()).thenReturn("dptablo_straview");
+        when(applicationProperty.getIssUser()).thenReturn("dptablo:straview");
+        when(applicationProperty.getJwtExpiryMinutes()).thenReturn(60L);
+
         User user = User.builder()
                 .userId("user1")
                 .password("1111")
@@ -62,7 +74,7 @@ class JwtAuthenticationServiceTest {
     }
 
     @Test
-    void signUp() {
+    public void signUp() {
         Set<Role> roles = Stream.of(Role.USER).collect(Collectors.toCollection(HashSet::new));
         User user = User.builder()
                 .userId("user1")
@@ -81,7 +93,11 @@ class JwtAuthenticationServiceTest {
     }
 
     @Test
-    void getAuthentication() {
+    public void getAuthentication() {
+        when(applicationProperty.getPrivateKey()).thenReturn("dptablo_straview");
+        when(applicationProperty.getIssUser()).thenReturn("dptablo:straview");
+        when(applicationProperty.getJwtExpiryMinutes()).thenReturn(60L);
+
         Set<Role> roles = Stream.of(Role.USER).collect(Collectors.toCollection(HashSet::new));
         User user = User.builder()
                 .userId("user1")

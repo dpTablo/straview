@@ -1,30 +1,62 @@
 package com.dptablo.straview.controller;
 
+import com.dptablo.straview.security.jwt.JwtAccessDeniedHandler;
+import com.dptablo.straview.security.jwt.JwtAuthenticationEntryPoint;
+import com.dptablo.straview.service.JwtAuthenticationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Optional;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Transactional
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(JwtAuthenticationController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class JwtAuthenticationControllerTest {
     @Autowired
-    JwtAuthenticationController controller;
+    private MockMvc mockMvc;
+
+    @MockBean
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @MockBean
+    private JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
+    @MockBean
+    private JwtAuthenticationService jwtAuthenticationService;
 
     @Test
-    void authenticate() {
-        ResponseEntity signUpResponseEntity = controller.signUp("user1", "1111");
-        assertThat(signUpResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+    public void authenticate() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("userId", "user1");
+        params.add("password", "1111");
 
-        assertThatNoException().isThrownBy(() -> {
-            ResponseEntity responseEntity = controller.authenticate("user1", "1111");
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(responseEntity.getHeaders().get(HttpHeaders.WWW_AUTHENTICATE)).isNotEmpty();
-        });
+        doReturn(Optional.of("token_abcdefg")).when(jwtAuthenticationService).authenticate(anyString(), anyString());
+        mockMvc.perform(post("/api/auth/authenticate").params(params))
+                .andExpect(status().isOk())
+                .andExpect(header().exists(HttpHeaders.WWW_AUTHENTICATE));
     }
+
+    @Test
+    public void authenticate_emptyToken() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("userId", "user1");
+        params.add("password", "1111");
+
+        doReturn(Optional.empty()).when(jwtAuthenticationService).authenticate(anyString(), anyString());
+        mockMvc.perform(post("/api/auth/authenticate").params(params))
+                .andExpect(status().is5xxServerError());
+    }
+
 }

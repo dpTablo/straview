@@ -39,13 +39,4 @@ public class JwtAuthenticationController {
                 .headers(responseHeaders)
                 .body("");
     }
-
-    @PostMapping("/signUp")
-    public ResponseEntity<String> signUp(
-            @Parameter(description = "사용자 ID", required = true, example = "user1") @RequestParam String userId,
-            @Parameter(description = "패스워드", required = true, example = "1234") @RequestParam String password
-    ) {
-        jwtAuthenticationService.signUp(userId, password);
-        return ResponseEntity.ok().build();
-    }
 }

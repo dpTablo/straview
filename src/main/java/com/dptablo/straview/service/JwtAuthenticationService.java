@@ -6,15 +6,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.dptablo.straview.ApplicationProperty;
 import com.dptablo.straview.dto.User;
 import com.dptablo.straview.dto.enumtype.Role;
 import com.dptablo.straview.repository.UserRepository;
 import com.dptablo.straview.security.StraviewUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,25 +25,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-@PropertySource("classpath:app.properties")
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationService {
-    @Value("${jwt.privateKey:dptablo_straview}")
-    private String PRIVATE_KEY = "dptablo_straview";
-
-    @Value("${jwt.expiryMinutes:60}")
-    private long JWT_TOKEN_EXPIRY_MINUTES = 60;
-
-    @Value("${jwt.issuer:dptablo:straview}")
-    private String ISSUER = "dptablo:straview";
-
-    private UserRepository userRepository;
-
-    @Autowired
-    public JwtAuthenticationService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
+    private final ApplicationProperty applicationProperty;
 
     public User signUp(String userId, String password) {
         Set<Role> roles = Stream.of(Role.USER).collect(Collectors.toCollection(HashSet::new));
@@ -97,21 +81,21 @@ public class JwtAuthenticationService {
     }
 
     private String createToken(UserDetails userDetails) throws JWTCreationException {
-        Algorithm algorithm = Algorithm.HMAC256(PRIVATE_KEY);
+        Algorithm algorithm = Algorithm.HMAC256(applicationProperty.getPrivateKey());
         return JWT.create()
                 .withSubject(userDetails.getUsername())
                 .withIssuedAt(new Date(System.currentTimeMillis()))
-                .withIssuer(ISSUER)
+                .withIssuer(applicationProperty.getIssUser())
                 .withExpiresAt(new Date(
-                    System.currentTimeMillis() + (1000 * 60 * JWT_TOKEN_EXPIRY_MINUTES)
+                    System.currentTimeMillis() + (1000 * 60 * applicationProperty.getJwtExpiryMinutes())
                 ))
                 .sign(algorithm);
     }
 
     private DecodedJWT decodeToken(String token) {
-        Algorithm algorithm = Algorithm.HMAC256(PRIVATE_KEY);
+        Algorithm algorithm = Algorithm.HMAC256(applicationProperty.getPrivateKey());
         JWTVerifier verifier = JWT.require(algorithm)
-                .withIssuer(ISSUER)
+                .withIssuer(applicationProperty.getIssUser())
                 .build();
         return verifier.verify(token);
     }

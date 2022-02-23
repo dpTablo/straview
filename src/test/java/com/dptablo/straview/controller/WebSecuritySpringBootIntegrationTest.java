@@ -12,10 +12,10 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WebSecuritySpringBootIntegrationTest {
     @Autowired
-    TestRestTemplate testRestTemplate;
+    private TestRestTemplate testRestTemplate;
 
     @Test
-    void apiSubPath_thenForbidden() {
+    public void apiSubPath_thenForbidden() {
         ResponseEntity<String> result = testRestTemplate.getForEntity("/api/hello", String.class);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
