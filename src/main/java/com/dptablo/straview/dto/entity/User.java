@@ -1,4 +1,4 @@
-package com.dptablo.straview.dto;
+package com.dptablo.straview.dto.entity;
 
 import com.dptablo.straview.dto.converter.RoleSetToStringConverter;
 import com.dptablo.straview.dto.enumtype.Role;

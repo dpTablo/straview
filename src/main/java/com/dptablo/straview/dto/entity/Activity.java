@@ -1,4 +1,4 @@
-package com.dptablo.straview.dto;
+package com.dptablo.straview.dto.entity;
 
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

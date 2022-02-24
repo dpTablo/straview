@@ -1,4 +1,4 @@
-package com.dptablo.straview.dto;
+package com.dptablo.straview.dto.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

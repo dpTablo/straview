@@ -1,4 +1,4 @@
-package com.dptablo.straview.dto;
+package com.dptablo.straview.dto.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -75,7 +75,7 @@ public class StravaAthlete {
      * 3: detail
      */
     @Column(name = "resource_state", nullable = false)
-    @JsonProperty("username")
+    @JsonProperty("resource_state")
     private Integer resourceState;
 
     @Column(name = "firstname")

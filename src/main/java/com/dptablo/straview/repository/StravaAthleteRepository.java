@@ -1,6 +1,6 @@
 package com.dptablo.straview.repository;
 
-import com.dptablo.straview.dto.StravaAthlete;
+import com.dptablo.straview.dto.entity.StravaAthlete;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

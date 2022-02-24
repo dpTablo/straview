@@ -1,7 +1,7 @@
 package com.dptablo.straview.service;
 
 import com.dptablo.straview.ApplicationProperty;
-import com.dptablo.straview.dto.User;
+import com.dptablo.straview.dto.entity.User;
 import com.dptablo.straview.dto.enumtype.Role;
 import com.dptablo.straview.repository.UserRepository;
 import com.dptablo.straview.security.StraviewUserDetails;

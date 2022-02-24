@@ -1,7 +1,7 @@
 package com.dptablo.straview.service;
 
 import com.dptablo.straview.ApplicationProperty;
-import com.dptablo.straview.dto.StravaOAuthTokenInfo;
+import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.exception.StraviewErrorCode;
 import lombok.extern.slf4j.Slf4j;

@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(StravaAuthenticationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class StravaAuthenticationControllerTest {
+public class StravaAuthenticationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 

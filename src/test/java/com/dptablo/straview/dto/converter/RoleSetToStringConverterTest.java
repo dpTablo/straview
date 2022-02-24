@@ -8,12 +8,12 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 
-class RoleSetToStringConverterTest {
+public class RoleSetToStringConverterTest {
 
     RoleSetToStringConverter converter = new RoleSetToStringConverter();
 
     @Test
-    void convertToDatabaseColumn() {
+    public void convertToDatabaseColumn() {
         HashSet<Role> list = new HashSet<>();
         list.add(Role.ADMIN);
         list.add(Role.USER);
@@ -23,13 +23,13 @@ class RoleSetToStringConverterTest {
     }
 
     @Test
-    void convertToDatabaseColumn_empty() {
+    public void convertToDatabaseColumn_empty() {
         HashSet<Role> list = new HashSet<>();
         assertThatCode(() -> converter.convertToDatabaseColumn(list)).doesNotThrowAnyException();
     }
 
     @Test
-    void convertToEntityAttribute() {
+    public void convertToEntityAttribute() {
         String value = "ADMIN,USER";
 
         Set<Role> roleSet = converter.convertToEntityAttribute(value);
@@ -38,7 +38,7 @@ class RoleSetToStringConverterTest {
     }
 
     @Test
-    void convertToEntityAttribute_empty() {
+    public void convertToEntityAttribute_empty() {
         assertThatCode(() -> converter.convertToEntityAttribute("")).doesNotThrowAnyException();
         assertThatCode(() -> converter.convertToEntityAttribute(null)).doesNotThrowAnyException();
     }

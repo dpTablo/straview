@@ -1,7 +1,7 @@
 package com.dptablo.straview.service;
 
 import com.dptablo.straview.ApplicationProperty;
-import com.dptablo.straview.dto.StravaOAuthTokenInfo;
+import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.exception.StraviewErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +18,6 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -26,7 +25,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 @RestClientTest(StravaAuthenticationService.class)
 @AutoConfigureWebClient(registerRestTemplate = true)
-class StravaAuthenticationServiceTest {
+public class StravaAuthenticationServiceTest {
     @Autowired
     private StravaAuthenticationService service;
 

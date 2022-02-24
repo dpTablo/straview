@@ -1,6 +1,6 @@
 package com.dptablo.straview.repository;
 
-import com.dptablo.straview.dto.User;
+import com.dptablo.straview.dto.entity.User;
 import com.dptablo.straview.dto.enumtype.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
