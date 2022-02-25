@@ -34,10 +34,13 @@ public class ApplicationProperty {
     private long jwtExpiryMinutes;
 
     @Value("${strava.clientId}")
-    private String stravaClientId;
+    private Integer stravaClientId;
+
+    @Value("${strava.clientTimeZone}")
+    private String stravaClientTimeZone;
 
     @Value("${strava.clientAthleteId}")
-    private String stravaClientAthleteId;
+    private Long stravaClientAthleteId;
 
     @Value("${strava.clientSecretFilePath}")
     private String clientSecretFilePath;
@@ -70,8 +73,7 @@ public class ApplicationProperty {
     private String readClientSecretFile() throws AuthenticationException {
         try (Stream<String> stream = Files.lines(Paths.get(clientSecretFilePath), StandardCharsets.UTF_8)) {
             StringBuilder contentBuilder = new StringBuilder();
-            stream.forEach(s -> contentBuilder.append(s).append("\n"));
-            return contentBuilder.toString();
+            return stream.findFirst().orElseThrow(IOException::new);
         } catch (IOException e) {
             throw new AuthenticationException(StraviewErrorCode.INVALID_STRAVA_CLIENT_SECRET, "Client secret file not be read.");
         }
