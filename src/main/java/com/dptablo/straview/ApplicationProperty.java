@@ -36,8 +36,14 @@ public class ApplicationProperty {
     @Value("${strava.clientId}")
     private String stravaClientId;
 
+    @Value("${strava.clientAthleteId}")
+    private String stravaClientAthleteId;
+
     @Value("${strava.clientSecretFilePath}")
     private String clientSecretFilePath;
+
+    @Value("${strava.auth.redirectUrl}")
+    private String stravaAuthRedirectUrl;
 
     @Value("${strava.api.oauth2.authorize}")
     private String stravaApiOAuth2Authorize;
