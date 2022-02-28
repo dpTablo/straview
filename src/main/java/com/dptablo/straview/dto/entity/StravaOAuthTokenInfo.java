@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 /**
  * <p>
@@ -45,11 +48,11 @@ public class StravaOAuthTokenInfo {
 
     @Column(name = "expires_at", nullable = false)
     @JsonProperty("expires_at")
-    private Integer expiresAt;
+    private Long expiresAt;
 
     @Column(name = "expires_in", nullable = false)
     @JsonProperty("expires_in")
-    private Integer expiresIn;
+    private Long expiresIn;
 
     @Column(name = "refresh_token", nullable = false)
     @JsonProperty("refresh_token")
@@ -62,4 +65,18 @@ public class StravaOAuthTokenInfo {
     @OneToOne(mappedBy = "stravaOAuthTokenInfo")
     @JsonProperty("athlete")
     private StravaAthlete athlete;
+
+    /**
+     * 토큰의 만료 여부를 반환합니다.
+     * @param timeZoneId time-zone ID, 지정되지 않는 경우 'Asia/Seoul'
+     * @return true: 만료, false: 유효
+     */
+    public boolean isExpireToken(String timeZoneId) {
+        timeZoneId = timeZoneId == null || timeZoneId.isEmpty() ? "Asia/Seoul" : timeZoneId;
+
+        Instant instant = Instant.ofEpochSecond(expiresAt + expiresIn);
+        ZonedDateTime value = ZonedDateTime.ofInstant(instant, ZoneId.of(timeZoneId));
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of(timeZoneId));
+        return value.toEpochSecond() < now.toEpochSecond();
+    }
 }
