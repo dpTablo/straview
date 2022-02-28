@@ -1,6 +1,7 @@
 package com.dptablo.straview.controller;
 
-import com.dptablo.straview.service.StravaAuthenticationService;
+import com.dptablo.straview.exception.AuthenticationException;
+import com.dptablo.straview.service.StravaOAuthService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -15,28 +16,25 @@ import org.springframework.web.servlet.view.RedirectView;
 @AllArgsConstructor
 @Slf4j
 public class StravaAuthenticationController {
-    private final StravaAuthenticationService stravaAuthenticationService;
+    private final StravaOAuthService stravaOAuthService;
 
+    /**
+     * Strava OAuth API 의 새로운 인증 토큰을 요청합니다.
+     * @param attributes
+     * @param code Strava 의 requesting access 절차에서 획득한 'code' 값.
+     * @return
+     */
     @GetMapping("/authenticate")
     public RedirectView authenticate(
             RedirectAttributes attributes,
-            @RequestParam String state,
-            @RequestParam String code,
-            @RequestParam String scope
+            @RequestParam String code
     ) {
         try {
-            //TODO 토큰 정보 DB 조회
+            stravaOAuthService.authenticate(code);
 
-            //TODO 토큰 정보 없는 경우 신규 토큰 요청
-//            StravaOAuthTokenInfo stravaOAuthTokenInfo = stravaAuthenticationService.authenticate(code, "authorization_code");
-
-            //TODO (토큰 만료 시) 토큰 리프레시
-            //TODO 리프레시 토큰 DB 정장
-
-            //TODO 메인 페이지 redirect
             attributes.addFlashAttribute("flashAttribute", "redirectWithRedirectView");
             return new RedirectView("/page/main", true);
-        } catch(Exception e) {
+        } catch(AuthenticationException e) {
             log.error(e.getMessage());
             return new RedirectView("/page/OAuth2/strava", true);
         }

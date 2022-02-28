@@ -80,8 +80,8 @@ public class StravaAthleteRepositoryTest {
         StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
                 .athleteId(athlete.getId())
                 .tokenType("Bearer")
-                .expiresAt(1568775134)
-                .expiresIn(21600)
+                .expiresAt(1568775134L)
+                .expiresIn(21600L)
                 .refreshToken("kldfaskl43k2dddd")
                 .accessToken("f345908sdf453klf")
                 .build();

@@ -26,8 +26,8 @@ public class StravaOAuthRepositoryTest {
         StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
                 .athleteId(29309L)
                 .tokenType("Bearer")
-                .expiresAt(1568775134)
-                .expiresIn(20000)
+                .expiresAt(1568775134L)
+                .expiresIn(20000L)
                 .refreshToken("lkdfslkj4sdf838")
                 .accessToken("gfdklfdlgk980ff3")
                 .build();
@@ -44,8 +44,8 @@ public class StravaOAuthRepositoryTest {
         StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
                 .athleteId(29309L)
                 .tokenType("Bearer")
-                .expiresAt(1568775134)
-                .expiresIn(20000)
+                .expiresAt(1568775134L)
+                .expiresIn(20000L)
                 .refreshToken("lkdfslkj4sdf838")
                 .accessToken("gfdklfdlgk980ff3")
                 .build();

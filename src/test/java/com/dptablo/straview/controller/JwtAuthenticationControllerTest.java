@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(JwtAuthenticationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class JwtAuthenticationControllerTest {
+public class JwtAuthenticationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
