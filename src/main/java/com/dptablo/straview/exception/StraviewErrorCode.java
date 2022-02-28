@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum StraviewErrorCode {
     AUTHENTICATION_KEY_CREATION_FAILED(1000, "Authentication key creaton failed.", HttpStatus.FORBIDDEN),
     INVALID_STRAVA_CLIENT_SECRET(1001, "Strava client secret is invalid.", HttpStatus.INTERNAL_SERVER_ERROR),
+    STRAVA_AUTHENTICATION_TOKEN_NOT_FOUND(1002, "Strava OAuth token not found.", HttpStatus.FORBIDDEN),
     SERVER_PROCESSION_ERROR(5000, "Error occurred during server processing.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int errorCode;
