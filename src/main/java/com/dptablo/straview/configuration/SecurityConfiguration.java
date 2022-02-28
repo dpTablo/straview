@@ -48,21 +48,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
             .and().httpBasic().disable();
 
-//            .and()
-//                .formLogin()
-//                .loginProcessingUrl("/")
-//                .successHandler((req, res, auth) -> res.setStatus(HttpStatus.NO_CONTENT.value()))
-//                .failureHandler(new SimpleUrlAuthenticationFailureHandler())
-//
-//            .and()
-//                .logout()
-//                .logoutSuccessUrl("/")
-//                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-
-
-
-
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
     }
