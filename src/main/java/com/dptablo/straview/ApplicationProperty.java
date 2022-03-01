@@ -54,6 +54,9 @@ public class ApplicationProperty {
     @Value("${strava.api.oauth2.token}")
     private String stravaApiOAuth2Token;
 
+    @Value("${strava.api.v3.athlete}")
+    private String stravaApiV3Athlete;
+
     private String clientSecret;
 
     public ApplicationProperty(ApplicationContext applicationContext) {
