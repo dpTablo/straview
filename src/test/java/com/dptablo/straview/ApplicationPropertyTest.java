@@ -25,6 +25,7 @@ public class ApplicationPropertyTest {
         assertThat(applicationProperty.getStravaAuthRedirectUrl()).isEqualTo("http://localhost:8080/straview/api/auth/strava/authenticate");
         assertThat(applicationProperty.getStravaApiOAuth2Authorize()).isEqualTo("https://www.strava.com/oauth/authorize");
         assertThat(applicationProperty.getStravaApiOAuth2Token()).isEqualTo("https://www.strava.com/api/v3/oauth/token");
-        assertThat(applicationProperty.getStravaApiV3Athlete()).isEqualTo("https://www.strava.com/api/v3/athlete");
+        assertThat(applicationProperty.getStravaApiV3BaseUrl()).isEqualTo("https://www.strava.com/api/v3");
+        assertThat(applicationProperty.getStravaApiV3Athlete()).isEqualTo("/athlete");
     }
 }
