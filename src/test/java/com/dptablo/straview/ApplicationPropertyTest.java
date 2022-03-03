@@ -21,7 +21,7 @@ public class ApplicationPropertyTest {
         assertThat(applicationProperty.getStravaClientId()).isEqualTo(77198);
         assertThat(applicationProperty.getStravaClientTimeZone()).isEqualTo("Asia/Seoul");
         assertThat(applicationProperty.getStravaClientAthleteId()).isEqualTo(81334314);
-        assertThat(applicationProperty.getClientSecretFilePath()).isEqualTo("C:\\development\\strava-client-secret.txt");
+        assertThat(applicationProperty.getClientSecretFilePath()).isEqualTo("/Users/dptablo/development/strava-client-secret");
         assertThat(applicationProperty.getStravaAuthRedirectUrl()).isEqualTo("http://localhost:8080/straview/api/auth/strava/authenticate");
         assertThat(applicationProperty.getStravaApiOAuth2Authorize()).isEqualTo("https://www.strava.com/oauth/authorize");
         assertThat(applicationProperty.getStravaApiOAuth2Token()).isEqualTo("https://www.strava.com/api/v3/oauth/token");
