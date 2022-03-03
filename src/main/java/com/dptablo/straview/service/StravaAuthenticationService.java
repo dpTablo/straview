@@ -5,30 +5,23 @@ import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.exception.StraviewErrorCode;
 import com.dptablo.straview.repository.StravaOAuthRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import reactor.core.publisher.Mono;
+
+import java.net.URI;
 
 @Service
 @PropertySource("classpath:app.properties")
 @Slf4j
+@RequiredArgsConstructor
 public class StravaAuthenticationService {
-    private final RestTemplate restTemplate;
     private final StravaOAuthRepository stravaOAuthRepository;
     private final ApplicationProperty applicationProperty;
-
-    public StravaAuthenticationService(RestTemplate restTemplate, StravaOAuthRepository stravaOAuthRepository, ApplicationProperty applicationProperty) {
-        this.restTemplate = restTemplate;
-        this.stravaOAuthRepository = stravaOAuthRepository;
-        this.applicationProperty = applicationProperty;
-    }
 
     /**
      * <p>
@@ -47,13 +40,21 @@ public class StravaAuthenticationService {
             String code,
             String grantType
     ) throws AuthenticationException {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(applicationProperty.getStravaApiOAuth2Token())
+        DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
+        URI uri = uriBuilderFactory.uriString(applicationProperty.getStravaApiOAuth2Token())
                 .queryParam("client_id", applicationProperty.getStravaClientId())
                 .queryParam("client_secret", applicationProperty.getClientSecret())
                 .queryParam("code", code)
-                .queryParam("grant_type", grantType);
+                .queryParam("grant_type", grantType)
+                .build();
 
-        return requestStravaTokenApi(builder);
+        try {
+            return requestStravaTokenApi(uriBuilderFactory, uri);
+        } catch (Exception e) {
+            throw new AuthenticationException(
+                    StraviewErrorCode.STRAVA_TOKEN_EXCHANGE_FAILED,
+                    StraviewErrorCode.STRAVA_TOKEN_EXCHANGE_FAILED.getDescription());
+        }
     }
 
     /**
@@ -74,28 +75,31 @@ public class StravaAuthenticationService {
                         "Refresh token not found.")
                 );
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(applicationProperty.getStravaApiOAuth2Token())
+        DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
+        URI uri = uriBuilderFactory.uriString(applicationProperty.getStravaApiOAuth2Token())
                 .queryParam("client_id", applicationProperty.getStravaClientId())
                 .queryParam("client_secret", applicationProperty.getClientSecret())
                 .queryParam("grant_type", grantType)
-                .queryParam("refresh_token", tokenInfo.getRefreshToken());
+                .queryParam("refresh_token", tokenInfo.getRefreshToken())
+                .build();
 
-        return requestStravaTokenApi(builder);
+        try {
+            return requestStravaTokenApi(uriBuilderFactory, uri);
+        } catch (Exception e) {
+            throw new AuthenticationException(
+                    StraviewErrorCode.STRAVA_TOKEN_REFRESH_FAILED,
+                    StraviewErrorCode.STRAVA_TOKEN_REFRESH_FAILED.getDescription());
+        }
     }
 
-    private StravaOAuthTokenInfo requestStravaTokenApi(UriComponentsBuilder builder) throws AuthenticationException {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-        httpHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+    private StravaOAuthTokenInfo requestStravaTokenApi(DefaultUriBuilderFactory uriBuilderFactory, URI uri) {
+        Mono<StravaOAuthTokenInfo> tokenInfoMono = WebClient.builder().uriBuilderFactory(uriBuilderFactory).build()
+                .post()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(StravaOAuthTokenInfo.class);
 
-        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
-        StravaOAuthTokenInfo result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, httpEntity, StravaOAuthTokenInfo.class).getBody();
-
-        if(result == null || result.getAccessToken() == null || result.getAccessToken().isEmpty()) {
-            throw new AuthenticationException(StraviewErrorCode.INVALID_STRAVA_CLIENT_SECRET, "Token exchange failed.");
-        } else {
-            return result;
-        }
+        return tokenInfoMono.blockOptional().orElseThrow(NullPointerException::new);
     }
 
 
