@@ -43,6 +43,8 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.22.0")
 //    testImplementation("org.mockito:mockito-core:4.3.1")
     testImplementation("com.h2database:h2:2.1.210")
+    testImplementation("com.squareup.okhttp3:okhttp:4.9.3")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.9.3")
 }
 
 java {

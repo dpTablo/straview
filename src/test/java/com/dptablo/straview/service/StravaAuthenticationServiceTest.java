@@ -3,141 +3,178 @@ package com.dptablo.straview.service;
 import com.dptablo.straview.ApplicationProperty;
 import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
-import com.dptablo.straview.exception.StraviewErrorCode;
 import com.dptablo.straview.repository.StravaOAuthRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
-import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.client.ExpectedCount;
-import org.springframework.test.web.client.MockRestServiceServer;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.hamcrest.Matchers.matchesPattern;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 
-@RestClientTest(StravaAuthenticationService.class)
-@AutoConfigureWebClient(registerRestTemplate = true)
+@ExtendWith(MockitoExtension.class)
 public class StravaAuthenticationServiceTest {
-    @Autowired
+    private static MockWebServer mockWebServer;
+
+    @InjectMocks
     private StravaAuthenticationService service;
 
-    @Autowired
-    private MockRestServiceServer mockServer;
+    @Mock
+    private StravaOAuthRepository stravaOAuthRepository;
 
-    @MockBean
+    @Mock
     private ApplicationProperty applicationProperty;
 
-    @MockBean
-    private StravaOAuthRepository stravaOAuthRepository;
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        mockWebServer = new MockWebServer();
+        mockWebServer.start();
+    }
+
+    @AfterAll
+    public static void afterAll() throws IOException {
+        mockWebServer.shutdown();
+    }
+
+    @Test
+    public void newAuthenticate() throws AuthenticationException {
+        //given
+        String stravaApiAuto2Token = String.format("http://localhost:%s/v3/oauth/token", mockWebServer.getPort());
+
+        given(applicationProperty.getStravaApiOAuth2Token()).willReturn(stravaApiAuto2Token);
+        given(applicationProperty.getStravaClientId()).willReturn(778899);
+        given(applicationProperty.getClientSecret()).willReturn("ssccrreett");
+
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .tokenType("Bearer")
+                .accessToken("a4b945687g...")
+                .refreshToken("e5n567567...")
+                .expiresAt(1568775134L)
+                .expiresIn(21600L)
+                .build();
+
+        final Dispatcher dispatcher = new Dispatcher() {
+            @NotNull
+            @Override
+            public MockResponse dispatch(@NotNull RecordedRequest recordedRequest) {
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                try {
+                    String requestPath = recordedRequest.getPath();
+                    if(requestPath.startsWith("/v3/oauth/token") &&
+                            requestPath.contains("client_id=") &&
+                            requestPath.contains("client_secret=") &&
+                            requestPath.contains("code=") &&
+                            requestPath.contains("grant_type=")
+                    ) {
+                        return new MockResponse()
+                                .addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .setResponseCode(HttpStatus.OK.value())
+                                .setBody(objectMapper.writeValueAsString(tokenInfo));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return new MockResponse().setResponseCode(400);
+            }
+        };
+        mockWebServer.setDispatcher(dispatcher);
+
+        //when
+        StravaOAuthTokenInfo resultTokenInfo = service.newAuthenticate("abcd", "authorization_code");
+
+        //then
+        assertThat(resultTokenInfo.getTokenType()).isEqualTo(tokenInfo.getTokenType());
+        assertThat(resultTokenInfo.getAccessToken()).isEqualTo(tokenInfo.getAccessToken());
+        assertThat(resultTokenInfo.getRefreshToken()).isEqualTo(tokenInfo.getRefreshToken());
+        assertThat(resultTokenInfo.getExpiresAt()).isEqualTo(tokenInfo.getExpiresAt());
+        assertThat(resultTokenInfo.getExpiresIn()).isEqualTo(tokenInfo.getExpiresIn());
+    }
+
+    @Test
+    public void refreshAuthenticate() throws AuthenticationException {
+        //given
+        String stravaApiAuto2Token = String.format("http://localhost:%s/v3/oauth/token", mockWebServer.getPort());
+        long athleteId = 838485398L;
+
+        given(applicationProperty.getStravaClientAthleteId()).willReturn(athleteId);
+        given(applicationProperty.getStravaApiOAuth2Token()).willReturn(stravaApiAuto2Token);
+        given(applicationProperty.getStravaClientId()).willReturn(778899);
+        given(applicationProperty.getClientSecret()).willReturn("ssccrreett");
+
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .tokenType("Bearer")
+                .accessToken("a4b945687g...")
+                .refreshToken("e5n567567...")
+                .expiresAt(1568775134L)
+                .expiresIn(21600L)
+                .build();
+        given(stravaOAuthRepository.findById(athleteId)).willReturn(Optional.of(tokenInfo));
+
+        StravaOAuthTokenInfo refreshTokenInfo = StravaOAuthTokenInfo.builder()
+                .tokenType("Bearer")
+                .accessToken("klsdfkln4309kjlre")
+                .refreshToken("lkdfsil0943k")
+                .expiresAt(1668775134L)
+                .expiresIn(20000L)
+                .build();
+
+        final Dispatcher dispatcher = new Dispatcher() {
+            @NotNull
+            @Override
+            public MockResponse dispatch(@NotNull RecordedRequest recordedRequest) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    String requestPath = recordedRequest.getPath();
+                    if(requestPath.startsWith("/v3/oauth/token") &&
+                            requestPath.contains("client_id=") &&
+                            requestPath.contains("client_secret=") &&
+                            requestPath.contains("grant_type=") &&
+                            requestPath.contains("refresh_token=")
+                    ) {
+                        return new MockResponse()
+                                .addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .setResponseCode(HttpStatus.OK.value())
+                                .setBody(objectMapper.writeValueAsString(refreshTokenInfo));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return new MockResponse().setResponseCode(400);
+            }
+        };
+        mockWebServer.setDispatcher(dispatcher);
+
+        //when
+        StravaOAuthTokenInfo resultTokenInfo = service.refreshAuthenticate("refresh_token");
+
+        //then
+        assertThat(resultTokenInfo.getTokenType()).isEqualTo(refreshTokenInfo.getTokenType());
+        assertThat(resultTokenInfo.getAccessToken()).isEqualTo(refreshTokenInfo.getAccessToken());
+        assertThat(resultTokenInfo.getRefreshToken()).isEqualTo(refreshTokenInfo.getRefreshToken());
+        assertThat(resultTokenInfo.getExpiresAt()).isEqualTo(refreshTokenInfo.getExpiresAt());
+        assertThat(resultTokenInfo.getExpiresIn()).isEqualTo(refreshTokenInfo.getExpiresIn());
+    }
 
     @Test
     public void onError_INVALID_STRAVA_CLIENT_SECRET() {
-        when(applicationProperty.getStravaApiOAuth2Token()).thenReturn("https://www.strava.com/api/v3/oauth/token");
-
-        mockServer.expect(
-                ExpectedCount.once(),
-                requestTo(matchesPattern("https://www.strava.com/api/v3/oauth/.*")))
-                    .andRespond(withSuccess("", MediaType.APPLICATION_JSON)
-        );
-
-        AuthenticationException exception =
-                catchThrowableOfType(() -> service.newAuthenticate("", ""), AuthenticationException.class);
-
-        assertThat(exception.getErrorCode()).isEqualTo(StraviewErrorCode.INVALID_STRAVA_CLIENT_SECRET);
+        assertThatThrownBy(() -> service.newAuthenticate("abcdefg", "authorization_code")).isInstanceOf(AuthenticationException.class);
+        assertThatThrownBy(() -> service.refreshAuthenticate("refresh_token")).isInstanceOf(AuthenticationException.class);
     }
-
-    @Test
-    public void newAuthenticate() throws JsonProcessingException, AuthenticationException {
-        when(applicationProperty.getStravaApiOAuth2Token()).thenReturn("https://www.strava.com/api/v3/oauth/token");
-
-        String code = "abcdefg";
-        String grantType = "authorization_code";
-
-        HashMap<String, Object> athleteMap = new HashMap<>();
-        athleteMap.put("id", 1234567890987654321L);
-        athleteMap.put("username", "marianne_t");
-
-        HashMap<String, Object> jsonResultMap = new HashMap<>();
-        jsonResultMap.put("token_type", "Bearer");
-        jsonResultMap.put("expires_at", 1568775134);
-        jsonResultMap.put("expires_in", 21600);
-        jsonResultMap.put("refresh_token", "e5n567567...");
-        jsonResultMap.put("access_token", "a4b945687g...");
-        jsonResultMap.put("athlete", athleteMap);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResult = objectMapper.writeValueAsString(jsonResultMap);
-
-        mockServer.expect(
-                ExpectedCount.once(),
-                requestTo(matchesPattern("https://www.strava.com/api/v3/oauth/.*")))
-                    .andRespond(withSuccess(jsonResult, MediaType.APPLICATION_JSON)
-        );
-
-        StravaOAuthTokenInfo tokenInfo = service.newAuthenticate(code, grantType);
-        assertThat(tokenInfo.getTokenType()).isEqualTo("Bearer");
-        assertThat(tokenInfo.getExpiresAt()).isEqualTo(1568775134);
-        assertThat(tokenInfo.getExpiresIn()).isEqualTo(21600);
-        assertThat(tokenInfo.getRefreshToken()).isEqualTo("e5n567567...");
-        assertThat(tokenInfo.getAccessToken()).isEqualTo("a4b945687g...");
-        assertThat(tokenInfo.getAthlete().getId()).isEqualTo(1234567890987654321L);
-        assertThat(tokenInfo.getAthlete().getUserName()).isEqualTo("marianne_t");
-    }
-
-    @Test
-    public void refreshAuthenticate() throws JsonProcessingException, AuthenticationException {
-        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
-                .tokenType("Bearer")
-                .expiresAt(1568775134L)
-                .expiresAt(21600L)
-                .refreshToken("e5n567567...")
-                .accessToken("a4b945687g...")
-                .build();
-
-        StravaOAuthTokenInfo newTokenInfo = StravaOAuthTokenInfo.builder()
-                .tokenType("Bearer")
-                .expiresAt(1668775134L)
-                .expiresAt(3600L)
-                .refreshToken("fkfkdlk49943")
-                .accessToken("kdfklfgd94")
-                .build();
-
-        when(applicationProperty.getStravaApiOAuth2Token()).thenReturn("https://www.strava.com/api/v3/oauth/token");
-        when(applicationProperty.getStravaClientAthleteId()).thenReturn(1435834L);
-        when(stravaOAuthRepository.findById(1435834L)).thenReturn(Optional.of(tokenInfo));
-
-        HashMap<String, Object> jsonResultMap = new HashMap<>();
-        jsonResultMap.put("token_type", newTokenInfo.getTokenType());
-        jsonResultMap.put("expires_at", newTokenInfo.getExpiresAt());
-        jsonResultMap.put("expires_in", newTokenInfo.getExpiresIn());
-        jsonResultMap.put("refresh_token", newTokenInfo.getRefreshToken());
-        jsonResultMap.put("access_token", newTokenInfo.getAccessToken());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResult = objectMapper.writeValueAsString(jsonResultMap);
-
-        mockServer.expect(
-                ExpectedCount.once(),
-                requestTo(matchesPattern("https://www.strava.com/api/v3/oauth/.*")))
-                    .andRespond(withSuccess(jsonResult, MediaType.APPLICATION_JSON)
-        );
-
-        StravaOAuthTokenInfo returnedTokenInfo = service.refreshAuthenticate(StravaOAuthService.REFRESH_TOKEN_GRANT_TYPE);
-        assertThat(returnedTokenInfo.getTokenType()).isEqualTo(newTokenInfo.getTokenType());
-        assertThat(returnedTokenInfo.getAccessToken()).isEqualTo(newTokenInfo.getAccessToken());
-        assertThat(returnedTokenInfo.getRefreshToken()).isEqualTo(newTokenInfo.getRefreshToken());
-        assertThat(returnedTokenInfo.getExpiresAt()).isEqualTo(newTokenInfo.getExpiresAt());
-        assertThat(returnedTokenInfo.getExpiresIn()).isEqualTo(newTokenInfo.getExpiresIn());
-    }
-
 }
