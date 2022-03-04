@@ -24,6 +24,12 @@ import java.util.stream.Stream;
 public class ApplicationProperty {
     private final ApplicationContext applicationContext;
 
+    @Value("{$straview.admin.account:straview}")
+    private String straviewAdminAccount;
+
+    @Value("{$straview.admin.password:straview1234}")
+    private String straviewAdminPassword;
+
     @Value("${jwt.issuer:dptablo:dptablo:straview}")
     private String issUser;
 

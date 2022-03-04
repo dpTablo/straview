@@ -5,14 +5,12 @@ import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.repository.StravaOAuthRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-@PropertySource("classpath:app.properties")
 @AllArgsConstructor
 public class StravaOAuthService {
     public static final String NEW_TOKEN_GRANT_TYPE = "authorization_code";

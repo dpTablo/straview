@@ -7,7 +7,6 @@ import com.dptablo.straview.exception.StraviewErrorCode;
 import com.dptablo.straview.repository.StravaOAuthRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -16,7 +15,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 @Service
-@PropertySource("classpath:app.properties")
 @Slf4j
 @RequiredArgsConstructor
 public class StravaAuthenticationService {

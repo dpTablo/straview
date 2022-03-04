@@ -4,7 +4,9 @@ import com.dptablo.straview.security.jwt.JwtAccessDeniedHandler;
 import com.dptablo.straview.security.jwt.JwtAuthenticationEntryPoint;
 import com.dptablo.straview.security.jwt.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,10 +20,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@PropertySource("classpath:app.properties")
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JwtRequestFilter jwtRequestFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
+    @Value("{$straview.admin.account:straview}")
+    private String straviewAdminAccount;
+
+    @Value("{$straview.admin.password:straview1234}")
+    private String straviewAdminPassword;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -40,10 +49,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-            .and()
-                .authorizeHttpRequests()
-                .antMatchers(HttpMethod.GET, "/page/OAuth2/strava", "/page/main", "/api/auth/strava/authenticate").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/auth/authenticate").permitAll()
+            .and().authorizeHttpRequests()
+                .antMatchers(HttpMethod.GET, "/page/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/page/**").hasRole("USER")
+                .antMatchers(HttpMethod.GET,
+                        "/api/auth/authenticate",
+                        "/api/auth/strava/authenticate").hasRole("USER")
                 .anyRequest().authenticated()
 
             .and().httpBasic().disable();
@@ -59,9 +70,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.inMemoryAuthentication()
                 .passwordEncoder(passwordEncoder)
 
-                .withUser("user1")
-                .password(passwordEncoder.encode("1111"))
-                .roles("USER")
+                .withUser(straviewAdminAccount)
+                .password(straviewAdminPassword)
+                .roles("ADMIN")
+
+                .and()
+                    .withUser("user1")
+                    .password(passwordEncoder.encode("1111"))
+                    .roles("USER")
 
                 .and()
                     .withUser("user2")

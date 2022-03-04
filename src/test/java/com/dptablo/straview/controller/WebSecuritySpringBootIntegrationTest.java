@@ -1,41 +1,39 @@
 package com.dptablo.straview.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import javax.servlet.ServletContext;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WebSecuritySpringBootIntegrationTest {
     @Autowired
-    private Environment environment;
+    private WebApplicationContext context;
 
-    @Autowired
-    private ServletContext servletContext;
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
     @Test
-    public void apiSubPath_thenForbidden() {
-        String port = environment.getProperty("local.server.port");
-        String contextPath = servletContext.getContextPath();
-        String uri = String.format("http://localhost:%s%s/api/hello", port, contextPath);
+    public void jwtAuthentication_permitAll() throws Exception {
+        mockMvc.perform(get("/page/login")).andExpect(status().isOk());
+    }
 
-        WebClient.ResponseSpec responseSpec = WebClient.create()
-                .get()
-                .uri(uri)
-                .retrieve();
-
-        try {
-            responseSpec.toEntity(String.class).block();
-        } catch(WebClientResponseException e) {
-            assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-        }
-
+    @Test
+    public void jwtAuthentication_notAuthenticated() throws Exception {
+        mockMvc.perform(get("/api/auth/authenticate")).andExpect(status().isUnauthorized());
     }
 }
