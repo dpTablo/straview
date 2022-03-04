@@ -74,7 +74,7 @@ public class StravaOAuthTokenInfo {
     public boolean isExpireToken(String timeZoneId) {
         timeZoneId = timeZoneId == null || timeZoneId.isEmpty() ? "Asia/Seoul" : timeZoneId;
 
-        Instant instant = Instant.ofEpochSecond(expiresAt + expiresIn);
+        Instant instant = Instant.ofEpochSecond(expiresAt);
         ZonedDateTime value = ZonedDateTime.ofInstant(instant, ZoneId.of(timeZoneId));
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of(timeZoneId));
         return value.toEpochSecond() < now.toEpochSecond();
