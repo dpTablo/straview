@@ -10,4 +10,9 @@ public class StraviewException extends Exception {
         super(message);
         this.errorCode = errorCode;
     }
+
+    public StraviewException(StraviewErrorCode errorCode, Throwable throwable) {
+        super(throwable);
+        this.errorCode = errorCode;
+    }
 }
