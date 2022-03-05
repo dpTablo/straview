@@ -60,6 +60,9 @@ public class ApplicationProperty {
     @Value("${strava.api.oauth2.token}")
     private String stravaApiOAuth2Token;
 
+    @Value("${strava.api.v3.timeout}")
+    private Integer stravaApiV3Timeout;
+
     @Value("${strava.api.v3.url.baseUrl}")
     private String stravaApiV3UrlBase;
 
