@@ -52,7 +52,7 @@ public class JwtAuthenticationService {
                     .collect(Collectors.toCollection(HashSet::new));
 
             UserDetails userDetails = createUserDetails(user, authoritySet);
-            return Optional.of(createToken(userDetails));
+            return Optional.ofNullable(createToken(userDetails));
         } catch(Exception e) {
             return Optional.empty();
         }
@@ -73,7 +73,7 @@ public class JwtAuthenticationService {
                             .map(role -> new SimpleGrantedAuthority(role.toString()))
                             .collect(Collectors.toSet());
 
-            return Optional.of(new UsernamePasswordAuthenticationToken(user.getUserId(), null, authorityCollection));
+            return Optional.ofNullable(new UsernamePasswordAuthenticationToken(user.getUserId(), null, authorityCollection));
         } catch (Exception e) {
             log.error(e.getMessage());
             return Optional.empty();

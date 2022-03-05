@@ -37,7 +37,7 @@ public class StravaOAuthServiceTest {
     private ApplicationProperty applicationProperty;
 
     @Test
-    public void authenticate_newToken() throws AuthenticationException {
+    public void authenticate_code_newToken() throws AuthenticationException {
         //given
         String code = "1e0acc9278c9b3e430f658d775b715e8624247cc";
         long athleteId = 12345L;
@@ -62,7 +62,7 @@ public class StravaOAuthServiceTest {
     }
 
     @Test
-    public void authenticate_refreshToken() throws AuthenticationException {
+    public void authenticate_code_refreshToken() throws AuthenticationException {
         //given
         String code = "1e0acc9278c9b3e430f658d775b715e8624247cc";
         long athleteId = 12345L;
@@ -74,7 +74,6 @@ public class StravaOAuthServiceTest {
         instant = Instant.now();
         zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul"));
         long freshExpiresAt = zonedDateTime.toEpochSecond();
-
 
         StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
                 .athleteId(athleteId)
@@ -111,7 +110,7 @@ public class StravaOAuthServiceTest {
     }
 
     @Test
-    public void requestNewTokenInfo_AuthenticationException() throws AuthenticationException {
+    public void authenticate_code_AuthenticationException() throws AuthenticationException {
         doThrow(AuthenticationException.class).when(stravaAuthenticationService).newAuthenticate(any(), any());
         assertThatThrownBy(() -> stravaOAuthService.authenticate("1e0acc9278c9b3e430f658d775b715e8624247cc"))
                 .isInstanceOf(AuthenticationException.class);
@@ -121,5 +120,51 @@ public class StravaOAuthServiceTest {
                 .isInstanceOf(AuthenticationException.class);
     }
 
+    @Test
+    public void authenticate_reuseToken() throws AuthenticationException {
+        //given
+        long athleteId = 12345L;
+        long expiresIn = 21600L;
+
+        Instant instant = Instant.now();
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul"));
+        long nowEpochSecond = zonedDateTime.toEpochSecond();
+
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .athleteId(athleteId)
+                .tokenType("Bearer")
+                .accessToken("aa")
+                .expiresAt(nowEpochSecond + expiresIn)
+                .expiresIn(expiresIn)
+                .refreshToken("aa11aa11")
+                .build();
+
+        given(applicationProperty.getStravaClientAthleteId()).willReturn(athleteId);
+        given(stravaOAuthRepository.findById(athleteId)).willReturn(Optional.ofNullable(tokenInfo));
+
+        //when
+        StravaOAuthTokenInfo returnedTokenInfo = stravaOAuthService.authenticate();
+
+        //then
+        assertThat(returnedTokenInfo.getAthleteId()).isEqualTo(returnedTokenInfo.getAthleteId());
+        assertThat(returnedTokenInfo.getTokenType()).isEqualTo(returnedTokenInfo.getTokenType());
+        assertThat(returnedTokenInfo.getAccessToken()).isEqualTo(returnedTokenInfo.getAccessToken());
+        assertThat(returnedTokenInfo.getExpiresAt()).isEqualTo(returnedTokenInfo.getExpiresAt());
+        assertThat(returnedTokenInfo.getExpiresIn()).isEqualTo(returnedTokenInfo.getExpiresIn());
+        assertThat(returnedTokenInfo.getRefreshToken()).isEqualTo(returnedTokenInfo.getRefreshToken());
+    }
+
+    @Test
+    public void authenticate_reuseToken_AuthenticationException() throws AuthenticationException {
+        //given
+        long athleteId = 12345L;
+        long expiresIn = 21600L;
+
+        given(applicationProperty.getStravaClientAthleteId()).willReturn(athleteId);
+        given(stravaOAuthRepository.findById(athleteId)).willReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> stravaOAuthService.authenticate()).isInstanceOf(AuthenticationException.class);
+    }
 
 }

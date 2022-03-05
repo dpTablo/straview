@@ -12,12 +12,12 @@ import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-class ActivityRepositoryTest {
+public class ActivityRepositoryTest {
     @Autowired
-    ActivityRepository activityRepository;
+    private ActivityRepository activityRepository;
 
     @Test
-    void save() {
+    public void save() {
         Activity activity = Activity.builder()
                 .id(98723487)
                 .externalId("external_id_12838")
