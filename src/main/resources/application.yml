@@ -13,9 +13,11 @@ spring:
     defer-datasource-initialization: true
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
   devtools:
     livereload:
+      enabled: true
+    restart:
       enabled: true
   thymeleaf:
     prefix: classpath:/templates/
@@ -26,8 +28,6 @@ server:
   port: 8080
   servlet:
     context-path: /straview
-    session:
-      timeout: 600s
   tomcat:
     uri-encoding: UTF-8
     threads:

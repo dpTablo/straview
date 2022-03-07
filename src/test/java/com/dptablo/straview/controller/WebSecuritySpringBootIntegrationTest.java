@@ -34,6 +34,6 @@ public class WebSecuritySpringBootIntegrationTest {
 
     @Test
     public void jwtAuthentication_notAuthenticated() throws Exception {
-        mockMvc.perform(get("/api/auth/authenticate")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/auth/authenticate")).andExpect(status().is4xxClientError());
     }
 }

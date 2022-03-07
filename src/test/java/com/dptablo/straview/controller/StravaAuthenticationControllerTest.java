@@ -21,10 +21,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.time.Instant;
+import java.util.Optional;
+
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = StravaAuthenticationController.class,
@@ -56,20 +59,70 @@ public class StravaAuthenticationControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    public void authenticate_success() throws Exception {
-        String code = "1e0acc9278c9b3e430f658d775b715e8624247cc";
+    public void authenticate_reuseToken() throws Exception {
+        //given
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .tokenType("Bearer")
+                .accessToken("kljfdsakljfdsaljk")
+                .refreshToken("fgdlkjr2349823r4iuf34")
+                .expiresAt(Instant.now().getEpochSecond())
+                .expiresIn(21600L)
+                .build();
 
-        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder().build();
+        given(stravaOAuthRepository.findById(applicationProperty.getStravaClientAthleteId()))
+                .willReturn(Optional.ofNullable(tokenInfo));
+        given(applicationProperty.getStravaApiOAuth2Authorize()).willReturn("https://www.strava.com/oauth/mobile/authorize");
+        given(applicationProperty.getStravaClientId()).willReturn(483489398);
+        given(applicationProperty.getStravaAuthRedirectUrl()).willReturn("http://localhost:8080/straview/api/auth/strava/authenticate");
+
+        //when & then
+        mockMvc.perform(get("/api/auth/strava/authenticate"))
+                .andExpect(status().isOk());
+
+        verify(stravaOAuthService, times(1)).authenticate();
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    public void authenticate_OAuth2Authorize() throws Exception {
+        //given
+        given(stravaOAuthRepository.findById(applicationProperty.getStravaClientAthleteId())).willReturn(Optional.empty());
+        given(applicationProperty.getStravaApiOAuth2Authorize()).willReturn("https://www.strava.com/oauth/mobile/authorize");
+        given(applicationProperty.getStravaClientId()).willReturn(483489398);
+        given(applicationProperty.getStravaAuthRedirectUrl()).willReturn("http://localhost:8080/straview/api/auth/strava/authenticate");
+
+        //when & then
+        mockMvc.perform(get("/api/auth/strava/authenticate"))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    public void authenticate_tokenExchange() throws Exception {
+        //given
+        String code = "fdsjklkdfskljdsf";
+
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .tokenType("Bearer")
+                .accessToken("kljfdsakljfdsaljk")
+                .refreshToken("fgdlkjr2349823r4iuf34")
+                .expiresAt(Instant.now().getEpochSecond())
+                .expiresIn(21600L)
+                .build();
+
+        given(stravaOAuthRepository.findById(applicationProperty.getStravaClientAthleteId())).willReturn(Optional.empty());
+        given(applicationProperty.getStravaApiOAuth2Authorize()).willReturn("https://www.strava.com/oauth/mobile/authorize");
+        given(applicationProperty.getStravaClientId()).willReturn(483489398);
+        given(applicationProperty.getStravaAuthRedirectUrl()).willReturn("http://localhost:8080/straview/api/auth/strava/authenticate");
+        given(applicationProperty.getStravaClientAthleteId()).willReturn(390930L);
         given(stravaAuthenticationService.newAuthenticate(code, "authorization_code")).willReturn(tokenInfo);
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("state", "");
-        params.add("code", code);
-        params.add("scope", "read");
+        //when & then
+        MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
+        paramsMap.add("code", code);
 
-        mockMvc.perform(get("/api/auth/strava/authenticate").params(params))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(header().string("Location", "/page/main"));
+        mockMvc.perform(get("/api/auth/strava/authenticate").params(paramsMap))
+                .andExpect(status().isOk());
 
         verify(stravaOAuthService, times(1)).authenticate(code);
     }

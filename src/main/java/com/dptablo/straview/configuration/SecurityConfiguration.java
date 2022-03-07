@@ -50,11 +50,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
             .and().authorizeHttpRequests()
-                .antMatchers(HttpMethod.GET, "/page/login").permitAll()
-                .antMatchers(HttpMethod.GET, "/page/**").hasRole("USER")
-                .antMatchers(HttpMethod.GET,
+                .antMatchers("/page/**",
                         "/api/auth/authenticate",
-                        "/api/auth/strava/authenticate").hasRole("USER")
+                        "/api/auth/strava/authenticate").permitAll()
                 .anyRequest().authenticated()
 
             .and().httpBasic().disable();
