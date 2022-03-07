@@ -1,4 +1,4 @@
-package com.dptablo.straview.controller;
+package com.dptablo.straview.controller.page;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

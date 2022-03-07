@@ -2,6 +2,7 @@ package com.dptablo.straview.controller;
 
 import com.dptablo.straview.ApplicationProperty;
 import com.dptablo.straview.configuration.SecurityConfiguration;
+import com.dptablo.straview.controller.page.StravaAuthenticationController;
 import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.repository.StravaOAuthRepository;
 import com.dptablo.straview.security.jwt.JwtRequestFilter;

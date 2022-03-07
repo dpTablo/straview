@@ -1,6 +1,7 @@
 package com.dptablo.straview.controller;
 
 import com.dptablo.straview.ApplicationProperty;
+import com.dptablo.straview.controller.rest.JwtAuthenticationController;
 import com.dptablo.straview.dto.entity.User;
 import com.dptablo.straview.dto.enumtype.Role;
 import com.dptablo.straview.security.jwt.JwtAccessDeniedHandler;

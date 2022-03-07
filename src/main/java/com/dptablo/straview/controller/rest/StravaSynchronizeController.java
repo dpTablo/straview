@@ -1,4 +1,4 @@
-package com.dptablo.straview.controller;
+package com.dptablo.straview.controller.rest;
 
 import com.dptablo.straview.exception.StraviewException;
 import com.dptablo.straview.service.StravaSynchronizeService;

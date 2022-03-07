@@ -1,4 +1,4 @@
-package com.dptablo.straview.controller;
+package com.dptablo.straview.controller.page;
 
 import com.dptablo.straview.ApplicationProperty;
 import lombok.RequiredArgsConstructor;
