@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 /**
  * <p>
@@ -37,10 +39,15 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class StravaOAuthTokenInfo {
+public class StravaOAuthTokenInfo implements Serializable {
     @Id
-    @Column(name = "athlete_id", nullable = false)
     private Long athleteId;
+
+    @MapsId
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "athlete_id", referencedColumnName = "athlete_id", nullable = false)
+    @JsonProperty("athlete")
+    private StravaAthlete athlete;
 
     @Column(name = "token_type", nullable = false)
     @JsonProperty("token_type")
@@ -62,10 +69,6 @@ public class StravaOAuthTokenInfo {
     @JsonProperty("access_token")
     private String accessToken;
 
-    @OneToOne(mappedBy = "stravaOAuthTokenInfo")
-    @JsonProperty("athlete")
-    private StravaAthlete athlete;
-
     /**
      * 토큰의 만료 여부를 반환합니다.
      * @param timeZoneId time-zone ID, 지정되지 않는 경우 'Asia/Seoul'
@@ -78,5 +81,18 @@ public class StravaOAuthTokenInfo {
         ZonedDateTime value = ZonedDateTime.ofInstant(instant, ZoneId.of(timeZoneId));
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of(timeZoneId));
         return value.toEpochSecond() < now.toEpochSecond();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StravaOAuthTokenInfo)) return false;
+        StravaOAuthTokenInfo tokenInfo = (StravaOAuthTokenInfo) o;
+        return Objects.equals(athleteId, tokenInfo.athleteId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(athleteId);
     }
 }
