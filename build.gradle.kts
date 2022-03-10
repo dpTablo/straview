@@ -30,6 +30,9 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
     implementation("org.springdoc:springdoc-openapi-webmvc-core:1.6.6")
 
+    /* macos */
+    implementation("io.netty:netty-resolver-dns-native-macos:4.1.73.Final:osx-aarch_64")
+
     /* dev */
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

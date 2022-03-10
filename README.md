@@ -34,3 +34,30 @@ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD="straview%Pass%word%" --name Pos
 
 - strava.clientId : Strava API 를 요청할 때 필요한 클라이언트 id   
 - strava.clientSecretFilePath : 클라이언트 id에 대한 암호값이 저장된 파일 경로
+
+## macos 에서 실행할 때 오류에 관하여
+macos, ARM 계열(Apple M1)의 cpu 에서 straview 를 실행하면 아래 오류가 발생할 수 있습니다.
+스프링 클라우드 게이트웨이 사용 시 발생합니다.
+```bash
+2022-03-10 19:00:13.763 ERROR 52672 --- [nio-8080-exec-3] i.n.r.d.DnsServerAddressStreamProviders  : Unable to load io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS.
+
+java.lang.reflect.InvocationTargetException: null
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:1.8.0_302]
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62) ~[na:1.8.0_302]
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:1.8.0_302]
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423) ~[na:1.8.0_302]
+	at io.netty.resolver.dns.DnsServerAddressStreamProviders.<clinit>(DnsServerAddressStreamProviders.java:64) ~[netty-resolver-dns-4.1.73.Final.jar:4.1.73.Final]
+	at io.netty.resolver.dns.DnsNameResolverBuilder.<init>(DnsNameResolverBuilder.java:60) [netty-resolver-dns-4.1.73.Final.jar:4.1.73.Final]
+	at reactor.netty.transport.NameResolverProvider.newNameResolverGroup(NameResolverProvider.java:479) [reactor-netty-core-1.0.15.jar:1.0.15]
+	at reactor.netty.tcp.TcpResources.getOrCreateDefaultResolver(TcpResources.java:315) [reactor-netty-core-1.0.15.jar:1.0.15]
+	at reactor.netty.http.HttpResources.getOrCreateDefaultResolver(HttpResources.java:139) [reactor-netty-http-1.0.15.jar:1.0.15]
+	at reactor.netty.http.client.HttpClientConfig.defaultAddressResolverGroup(HttpClientConfig.java:382) [reactor-netty-http-1.0.15.jar:1.0.15]
+```
+
+라이브러리 `io.netty:netty-resolver-dns-native-macos:4.1.73.Final` 가 의존성에 의해 참조되어 있으며, 기본적으로 x86_64 의존성만 추가되어 있습니다.
+
+build.gradle.kts 에 아래 의존성을 추가하면 발생하지 않습니다.
+```kotlin
+implementation("io.netty:netty-resolver-dns-native-macos:4.1.73.Final:osx-aarch_64")
+```
+일반적인 intel, amd 등의 x86 계열 아키텍처에서는 발생하지 않습니다.
