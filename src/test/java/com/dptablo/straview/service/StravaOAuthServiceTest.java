@@ -1,6 +1,7 @@
 package com.dptablo.straview.service;
 
 import com.dptablo.straview.ApplicationProperty;
+import com.dptablo.straview.dto.entity.StravaAthlete;
 import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.repository.StravaOAuthRepository;
@@ -42,23 +43,27 @@ public class StravaOAuthServiceTest {
         String code = "1e0acc9278c9b3e430f658d775b715e8624247cc";
         long athleteId = 12345L;
 
-        StravaOAuthTokenInfo newTokenInfo = StravaOAuthTokenInfo.builder()
+        StravaAthlete athlete = StravaAthlete.builder()
                 .athleteId(athleteId)
+                .build();
+
+        StravaOAuthTokenInfo newTokenInfo = StravaOAuthTokenInfo.builder()
+                .athlete(athlete)
                 .tokenType("Bearer")
                 .accessToken("dljksdjklsdfljklsd")
                 .build();
 
+        athlete.setStravaOAuthTokenInfo(newTokenInfo);
+
         given(applicationProperty.getStravaClientAthleteId()).willReturn(athleteId);
         given(stravaAuthenticationService.newAuthenticate(code, "authorization_code")).willReturn(newTokenInfo);
         given(stravaOAuthRepository.findById(athleteId)).willReturn(Optional.empty());
-        given(stravaOAuthRepository.save(newTokenInfo)).willReturn(newTokenInfo);
 
         //when
         StravaOAuthTokenInfo returnedTokenInfo = stravaOAuthService.authenticate(code);
 
         //then
         assertThat(returnedTokenInfo).isEqualTo(newTokenInfo);
-        verify(stravaOAuthRepository, times(1)).save(newTokenInfo);
     }
 
     @Test
@@ -66,6 +71,10 @@ public class StravaOAuthServiceTest {
         //given
         String code = "1e0acc9278c9b3e430f658d775b715e8624247cc";
         long athleteId = 12345L;
+
+        StravaAthlete athlete = StravaAthlete.builder()
+                .athleteId(athleteId)
+                .build();
 
         Instant instant = Instant.parse("2000-01-01T00:00:00.123Z");
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul"));
@@ -76,7 +85,7 @@ public class StravaOAuthServiceTest {
         long freshExpiresAt = zonedDateTime.toEpochSecond();
 
         StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
-                .athleteId(athleteId)
+                .athlete(athlete)
                 .tokenType("Bearer")
                 .accessToken("aa")
                 .expiresAt(expiresAt)
@@ -85,7 +94,7 @@ public class StravaOAuthServiceTest {
                 .build();
 
         StravaOAuthTokenInfo refreshTokenInfo = StravaOAuthTokenInfo.builder()
-                .athleteId(athleteId)
+                .athlete(athlete)
                 .tokenType("Bearer")
                 .accessToken("bb")
                 .expiresAt(freshExpiresAt)
@@ -130,8 +139,12 @@ public class StravaOAuthServiceTest {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul"));
         long nowEpochSecond = zonedDateTime.toEpochSecond();
 
-        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+        StravaAthlete athlete = StravaAthlete.builder()
                 .athleteId(athleteId)
+                .build();
+
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .athlete(athlete)
                 .tokenType("Bearer")
                 .accessToken("aa")
                 .expiresAt(nowEpochSecond + expiresIn)
@@ -146,7 +159,7 @@ public class StravaOAuthServiceTest {
         StravaOAuthTokenInfo returnedTokenInfo = stravaOAuthService.authenticate();
 
         //then
-        assertThat(returnedTokenInfo.getAthleteId()).isEqualTo(returnedTokenInfo.getAthleteId());
+        assertThat(returnedTokenInfo.getAthlete()).isEqualTo(returnedTokenInfo.getAthlete());
         assertThat(returnedTokenInfo.getTokenType()).isEqualTo(returnedTokenInfo.getTokenType());
         assertThat(returnedTokenInfo.getAccessToken()).isEqualTo(returnedTokenInfo.getAccessToken());
         assertThat(returnedTokenInfo.getExpiresAt()).isEqualTo(returnedTokenInfo.getExpiresAt());

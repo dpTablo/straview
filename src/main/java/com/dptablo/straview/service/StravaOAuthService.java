@@ -62,10 +62,7 @@ public class StravaOAuthService {
     }
 
     private StravaOAuthTokenInfo requestNewTokenInfo(String code) throws AuthenticationException {
-        StravaOAuthTokenInfo tokenInfo = stravaAuthenticationService.newAuthenticate(code, NEW_TOKEN_GRANT_TYPE);
-        tokenInfo.setAthleteId(applicationProperty.getStravaClientAthleteId());
-
-        return stravaOAuthRepository.save(tokenInfo);
+        return stravaAuthenticationService.newAuthenticate(code, NEW_TOKEN_GRANT_TYPE);
     }
 
     private StravaOAuthTokenInfo useExistingTokenInfo(StravaOAuthTokenInfo tokenInfo) throws AuthenticationException {

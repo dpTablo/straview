@@ -47,7 +47,7 @@ public class StravaAuthenticationController {
                     .concat("&redirect_uri=").concat(applicationProperty.getStravaAuthRedirectUrl())
                     .concat("&response_type=code")
                     .concat("&approval_prompt=auto")
-                    .concat("&scope=read_all");
+                    .concat("&scope=read_all,profile:read_all,activity:read_all");
 
             if(code.isEmpty()) { // strava 인증 페이지
                 HttpHeaders httpHeaders = new HttpHeaders();

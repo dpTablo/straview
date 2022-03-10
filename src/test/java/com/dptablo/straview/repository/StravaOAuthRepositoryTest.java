@@ -23,52 +23,58 @@ public class StravaOAuthRepositoryTest {
 
     @Test
     public void save() {
-        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
-                .athleteId(29309L)
-                .tokenType("Bearer")
-                .expiresAt(1568775134L)
-                .expiresIn(20000L)
-                .refreshToken("lkdfslkj4sdf838")
-                .accessToken("gfdklfdlgk980ff3")
-                .build();
-
-        assertThatNoException().isThrownBy(() -> repository.save(tokenInfo));
-
-        Optional<StravaOAuthTokenInfo> foundTokenInfo = repository.findById(tokenInfo.getAthleteId());
-        assertThat(foundTokenInfo.isPresent()).isTrue();
-        assertThat(foundTokenInfo.get().getAthleteId()).isEqualTo(tokenInfo.getAthleteId());
-    }
-
-    @Test
-    public void athlete() {
-        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
-                .athleteId(29309L)
-                .tokenType("Bearer")
-                .expiresAt(1568775134L)
-                .expiresIn(20000L)
-                .refreshToken("lkdfslkj4sdf838")
-                .accessToken("gfdklfdlgk980ff3")
-                .build();
+        //given
+        Long athleteId = 23823984L;
 
         StravaAthlete athlete = StravaAthlete.builder()
-                .id(tokenInfo.getAthleteId())
+                .athleteId(athleteId)
                 .userName("dptablo")
                 .resourceState(1)
                 .build();
 
-        assertThatNoException().isThrownBy(() -> {
-            athleteRepository.save(athlete);
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .athlete(athlete)
+                .tokenType("Bearer")
+                .expiresAt(1568775134L)
+                .expiresIn(20000L)
+                .refreshToken("lkdfslkj4sdf838")
+                .accessToken("gfdklfdlgk980ff3")
+                .build();
 
-            StravaOAuthTokenInfo returnedTokenInfo = repository.save(tokenInfo);
-            returnedTokenInfo.setAthlete(athlete);
-        });
+        //when
+        repository.save(tokenInfo);
 
-        Optional<StravaOAuthTokenInfo> foundTokenInfoOptional = repository.findById(tokenInfo.getAthleteId());
-        StravaOAuthTokenInfo foundTokenInfo = foundTokenInfoOptional.orElseThrow(NullPointerException::new);
+        //then
+        StravaOAuthTokenInfo foundTokenInfo = repository.findById(athleteId).orElseThrow(NullPointerException::new);
+        assertThat(foundTokenInfo).isEqualTo(tokenInfo);
+    }
+
+    @Test
+    public void athlete() {
+        //given
+        Long athleteId = 29309L;
+
+        StravaAthlete athlete = StravaAthlete.builder()
+                .athleteId(athleteId)
+                .userName("dptablo")
+                .resourceState(1)
+                .build();
+
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .athlete(athlete)
+                .tokenType("Bearer")
+                .expiresAt(1568775134L)
+                .expiresIn(20000L)
+                .refreshToken("lkdfslkj4sdf838")
+                .accessToken("gfdklfdlgk980ff3")
+                .build();
+
+        //when
+        repository.save(tokenInfo);
+
+        //then
+        StravaOAuthTokenInfo foundTokenInfo = repository.findById(athleteId).orElseThrow(NullPointerException::new);
         StravaAthlete foundAthlete = foundTokenInfo.getAthlete();
-
-        assertThat(foundAthlete.getId()).isEqualTo(tokenInfo.getAthleteId());
-        assertThat(foundAthlete.getUserName()).isEqualTo(athlete.getUserName());
-        assertThat(foundAthlete.getResourceState()).isEqualTo(athlete.getResourceState());
+        assertThat(foundAthlete.getAthleteId()).isEqualTo(athleteId);
     }
 }

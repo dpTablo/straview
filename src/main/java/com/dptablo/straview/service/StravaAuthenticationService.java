@@ -8,6 +8,7 @@ import com.dptablo.straview.repository.StravaOAuthRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import reactor.core.publisher.Mono;
@@ -34,6 +35,7 @@ public class StravaAuthenticationService {
      * @param grantType The grant type for the request. For initial authentication, must always be "authorization_code".
      * @return 신규 토큰 정보
      */
+    @Transactional
     public StravaOAuthTokenInfo newAuthenticate(
             String code,
             String grantType
@@ -47,7 +49,8 @@ public class StravaAuthenticationService {
                 .build();
 
         try {
-            return requestStravaTokenApi(uriBuilderFactory, uri);
+            StravaOAuthTokenInfo tokenInfo = requestStravaTokenApi(uriBuilderFactory, uri);
+            return stravaOAuthRepository.save(tokenInfo);
         } catch (Exception e) {
             throw new AuthenticationException(
                     StraviewErrorCode.STRAVA_TOKEN_EXCHANGE_FAILED,

@@ -4,7 +4,6 @@ import com.dptablo.straview.ApplicationProperty;
 import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.repository.StravaOAuthRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -26,6 +25,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +61,7 @@ public class StravaAuthenticationServiceTest {
         given(applicationProperty.getStravaClientId()).willReturn(778899);
         given(applicationProperty.getClientSecret()).willReturn("ssccrreett");
 
+
         StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
                 .tokenType("Bearer")
                 .accessToken("a4b945687g...")
@@ -68,6 +69,7 @@ public class StravaAuthenticationServiceTest {
                 .expiresAt(1568775134L)
                 .expiresIn(21600L)
                 .build();
+        given(stravaOAuthRepository.save(any(StravaOAuthTokenInfo.class))).willReturn(tokenInfo);
 
         final Dispatcher dispatcher = new Dispatcher() {
             @NotNull
