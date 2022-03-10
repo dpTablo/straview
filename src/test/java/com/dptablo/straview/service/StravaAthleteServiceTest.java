@@ -5,6 +5,7 @@ import com.dptablo.straview.dto.entity.StravaAthlete;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.reactive.StravaWebClientFactory;
 import com.dptablo.straview.repository.StravaAthleteRepository;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -26,6 +27,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -68,7 +70,7 @@ public class StravaAthleteServiceTest {
         String authorization = "Bearer djdfjo290r2c323498c";
 
         StravaAthlete apiResultAthlete = StravaAthlete.builder()
-                .id(8823834L).resourceState(3).firstName("이")
+                .athleteId(8823834L).resourceState(3).firstName("이")
                 .lastName("영우").profileMedium("http://abc.com/medium43293.png")
                 .profile("http://abc.com/pppproi393.png")
                 .city("Seoul")
@@ -86,15 +88,16 @@ public class StravaAthleteServiceTest {
             @Override
             public MockResponse dispatch(@NotNull RecordedRequest recordedRequest) {
                 ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
                 try {
                     String requestPath = recordedRequest.getPath();
 
-                    if(requestPath.startsWith("/api/v3/athlete") &&
-                            recordedRequest.getHeader(HttpHeaders.AUTHORIZATION).equals(authorization)
+                    if((requestPath != null && requestPath.startsWith("/api/v3/athlete")) &&
+                            authorization.equals(recordedRequest.getHeader(HttpHeaders.AUTHORIZATION))
                     ) {
                         return new MockResponse()
-                                .addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                 .setResponseCode(HttpStatus.OK.value())
                                 .setBody(objectMapper.writeValueAsString(apiResultAthlete));
                     }
@@ -112,7 +115,7 @@ public class StravaAthleteServiceTest {
         //then
         verify(stravaAthleteRepository, times(1)).save(any(StravaAthlete.class));
 
-        assertThat(athlete.getId()).isEqualTo(apiResultAthlete.getId());
+        assertThat(athlete.getAthleteId()).isEqualTo(apiResultAthlete.getAthleteId());
         assertThat(athlete.getResourceState()).isEqualTo(apiResultAthlete.getResourceState());
         assertThat(athlete.getFirstName()).isEqualTo(apiResultAthlete.getFirstName());
         assertThat(athlete.getLastName()).isEqualTo(apiResultAthlete.getLastName());

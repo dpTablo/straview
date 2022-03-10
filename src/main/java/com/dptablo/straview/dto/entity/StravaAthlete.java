@@ -1,10 +1,15 @@
 package com.dptablo.straview.dto.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Strava Athlete 정보
@@ -63,26 +68,26 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class StravaAthlete {
+public class StravaAthlete implements Serializable {
     @Id
-    @Column(name = "id", unique = true, nullable = false)
+    @Column(name = "athlete_id", unique = true, nullable = false)
     @JsonProperty("id")
-    private Long id;
+    private Long athleteId;
 
     /**
      * 1: meta
      * 2: summary
      * 3: detail
      */
-    @Column(name = "resource_state", nullable = false)
+    @Column(name = "resource_state")
     @JsonProperty("resource_state")
     private Integer resourceState;
 
-    @Column(name = "firstname")
+    @Column(name = "first_name")
     @JsonProperty("firstname")
     private String firstName;
 
-    @Column(name = "lastname")
+    @Column(name = "last_name")
     @JsonProperty("lastname")
     private String lastName;
 
@@ -141,7 +146,7 @@ public class StravaAthlete {
     @JsonProperty("updated_at")
     private String updatedAt;
 
-    @Column(name = "username")
+    @Column(name = "user_name")
     @JsonProperty("username")
     private String userName;
 
@@ -169,7 +174,38 @@ public class StravaAthlete {
     @JsonProperty("weight")
     private Float weight;
 
-    @OneToOne
-    @JoinColumn(name = "id")
+    @Column(name = "badge_type_id")
+    @JsonProperty("badge_type_id")
+    private Integer badgeTypeId;
+
+    @Column(name = "athlete_type")
+    @JsonProperty("athlete_type")
+    private Integer athleteType;
+
+    @Column(name = "date_preference")
+    @JsonProperty("date_preference")
+    private String datePreference;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "athlete", cascade = CascadeType.ALL)
+    @JsonProperty("bikes")
+    @Builder.Default
+    private List<Gear> bikes = new ArrayList<>();
+
+    @OneToOne(mappedBy = "athlete", cascade = CascadeType.ALL)
+    @JoinColumn
+    @JsonIgnore
     private StravaOAuthTokenInfo stravaOAuthTokenInfo;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StravaAthlete)) return false;
+        StravaAthlete athlete = (StravaAthlete) o;
+        return athleteId.equals(athlete.athleteId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(athleteId);
+    }
 }
