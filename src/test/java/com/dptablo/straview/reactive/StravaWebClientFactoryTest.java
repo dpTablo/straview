@@ -1,6 +1,7 @@
 package com.dptablo.straview.reactive;
 
 import com.dptablo.straview.ApplicationProperty;
+import com.dptablo.straview.dto.entity.StravaAthlete;
 import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.service.StravaOAuthService;
@@ -42,8 +43,12 @@ class StravaWebClientFactoryTest {
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul"));
         long nowEpochSecond = zonedDateTime.toEpochSecond();
 
-        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+        StravaAthlete athlete = StravaAthlete.builder()
                 .athleteId(athleteId)
+                .build();
+
+        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
+                .athlete(athlete)
                 .tokenType("Bearer")
                 .accessToken("aa")
                 .expiresAt(nowEpochSecond + expiresIn)

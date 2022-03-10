@@ -1,6 +1,7 @@
 package com.dptablo.straview.reactive;
 
 import com.dptablo.straview.ApplicationProperty;
+import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.service.StravaOAuthService;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +16,16 @@ public class StravaWebClientFactory {
     private final StravaOAuthService stravaOAuthService;
 
     public WebClient createApiWebClient() throws AuthenticationException {
-        return WebClient.create()
-                .mutate()
+        return WebClient.builder()
                 .baseUrl(applicationProperty.getStravaApiV3UrlBase())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, getAccessToken())
                 .build();
     }
 
     private String getAccessToken() throws AuthenticationException {
-        return stravaOAuthService.authenticate().getAccessToken();
+        StravaOAuthTokenInfo tokenInfo = stravaOAuthService.authenticate();
+        return tokenInfo.getTokenType()
+                .concat(" ")
+                .concat(tokenInfo.getAccessToken());
     }
 }
