@@ -2,7 +2,6 @@ package com.dptablo.straview.repository;
 
 import com.dptablo.straview.dto.entity.Gear;
 import com.dptablo.straview.dto.entity.StravaAthlete;
-import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -107,41 +106,5 @@ public class StravaAthleteRepositoryTest {
         assertThat(bikes.size()).isEqualTo(2);
         assertThat(bikes.get(0).getGearId()).isEqualTo(gear1.getGearId());
         assertThat(bikes.get(1).getGearId()).isEqualTo(gear2.getGearId());
-    }
-
-    @Test
-    public void stravaOAuthTokenInfo() {
-        //given
-        StravaAthlete athlete = StravaAthlete.builder()
-                .athleteId(1123213L)
-                .userName("dptablo")
-                .resourceState(1)
-                .build();
-
-        StravaOAuthTokenInfo tokenInfo = StravaOAuthTokenInfo.builder()
-                .athlete(athlete)
-                .tokenType("Bearer")
-                .expiresAt(1568775134L)
-                .expiresIn(21600L)
-                .refreshToken("kldfaskl43k2dddd")
-                .accessToken("f345908sdf453klf")
-                .build();
-
-        athlete.setStravaOAuthTokenInfo(tokenInfo);
-
-        //when
-        athleteRepository.save(athlete);
-
-        //then
-        StravaAthlete foundAthlete = athleteRepository.findById(athlete.getAthleteId())
-                .orElseThrow(NullPointerException::new);
-        StravaOAuthTokenInfo foundTakenInfo = foundAthlete.getStravaOAuthTokenInfo();
-
-        assertThat(foundTakenInfo.getAthlete()).isEqualTo(foundAthlete);
-        assertThat(foundTakenInfo.getTokenType()).isEqualTo(tokenInfo.getTokenType());
-        assertThat(foundTakenInfo.getExpiresAt()).isEqualTo(tokenInfo.getExpiresAt());
-        assertThat(foundTakenInfo.getExpiresIn()).isEqualTo(tokenInfo.getExpiresIn());
-        assertThat(foundTakenInfo.getRefreshToken()).isEqualTo(tokenInfo.getRefreshToken());
-        assertThat(foundTakenInfo.getAccessToken()).isEqualTo(tokenInfo.getAccessToken());
     }
 }

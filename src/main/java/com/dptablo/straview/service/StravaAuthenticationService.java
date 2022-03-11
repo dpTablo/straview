@@ -1,9 +1,11 @@
 package com.dptablo.straview.service;
 
 import com.dptablo.straview.ApplicationProperty;
+import com.dptablo.straview.dto.entity.StravaAthlete;
 import com.dptablo.straview.dto.entity.StravaOAuthTokenInfo;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.exception.StraviewErrorCode;
+import com.dptablo.straview.repository.StravaAthleteRepository;
 import com.dptablo.straview.repository.StravaOAuthRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,7 @@ public class StravaAuthenticationService {
 
         try {
             StravaOAuthTokenInfo tokenInfo = requestStravaTokenApi(uriBuilderFactory, uri);
+            tokenInfo.setAthleteId(applicationProperty.getStravaClientAthleteId());
             return stravaOAuthRepository.save(tokenInfo);
         } catch (Exception e) {
             throw new AuthenticationException(

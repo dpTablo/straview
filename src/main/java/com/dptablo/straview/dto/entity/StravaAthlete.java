@@ -191,11 +191,6 @@ public class StravaAthlete implements Serializable {
     @Builder.Default
     private List<Gear> bikes = new ArrayList<>();
 
-    @OneToOne(mappedBy = "athlete", cascade = CascadeType.ALL)
-    @JoinColumn
-    @JsonIgnore
-    private StravaOAuthTokenInfo stravaOAuthTokenInfo;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

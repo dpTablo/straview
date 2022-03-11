@@ -41,13 +41,8 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StravaOAuthTokenInfo implements Serializable {
     @Id
+    @Column(name = "athlete_id", nullable = false, unique = true)
     private Long athleteId;
-
-    @MapsId
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "athlete_id", referencedColumnName = "athlete_id", nullable = false)
-    @JsonProperty("athlete")
-    private StravaAthlete athlete;
 
     @Column(name = "token_type", nullable = false)
     @JsonProperty("token_type")
