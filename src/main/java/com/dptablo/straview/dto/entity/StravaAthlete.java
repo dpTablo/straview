@@ -191,6 +191,9 @@ public class StravaAthlete implements Serializable {
     @Builder.Default
     private List<Gear> bikes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "athlete")
+    private List<SummaryActivity> activities;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
