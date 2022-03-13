@@ -1,6 +1,7 @@
 package com.dptablo.straview.dto.converter;
 
 import com.dptablo.straview.dto.enumtype.Role;
+import com.dptablo.straview.dto.enumtype.converter.RoleSetToStringConverter;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
