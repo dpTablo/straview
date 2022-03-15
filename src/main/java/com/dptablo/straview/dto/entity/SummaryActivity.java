@@ -219,11 +219,14 @@ public class SummaryActivity implements Serializable {
 
     @Column(name = "has_kudoed")
     @JsonProperty("has_kudoed")
-    private Boolean hasKudoed = null;
+    private Boolean hasKudoed;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "gear_id")
     private Gear gear;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "summaryActivity", targetEntity = ActivityStream.class)
+    private List<ActivityStream> activityStreams;
 
     @Override
     public boolean equals(Object o) {
