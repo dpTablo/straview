@@ -1,6 +1,8 @@
 package com.dptablo.straview.dto.entity;
 
+import com.dptablo.straview.dto.Latlng;
 import com.dptablo.straview.dto.enumtype.ResourceState;
+import com.dptablo.straview.dto.enumtype.converter.LatlngConverter;
 import com.dptablo.straview.dto.enumtype.converter.ResourceStateConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -147,15 +149,15 @@ public class SummaryActivity implements Serializable {
     @JsonProperty("flagged")
     private Boolean flagged;
 
-    @ElementCollection(fetch = FetchType.LAZY)
     @Column(name = "start_latlng")
+    @Convert(converter = LatlngConverter.class)
     @JsonProperty("start_latlng")
-    private List<Float> startLatlng;
+    private Latlng startLatlng;
 
-    @ElementCollection(fetch = FetchType.LAZY)
     @Column(name = "end_latlng")
+    @Convert(converter = LatlngConverter.class)
     @JsonProperty("end_latlng")
-    private List<Float> endLatlng;
+    private Latlng endLatlng;
 
     @Column(name = "start_latitude")
     @JsonProperty("start_latitude")

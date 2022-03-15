@@ -1,5 +1,6 @@
 package com.dptablo.straview.repository;
 
+import com.dptablo.straview.dto.Latlng;
 import com.dptablo.straview.dto.entity.Gear;
 import com.dptablo.straview.dto.entity.StravaAthlete;
 import com.dptablo.straview.dto.entity.SummaryActivity;
@@ -7,12 +8,11 @@ import com.dptablo.straview.dto.enumtype.ResourceState;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -136,17 +136,13 @@ public class SummaryActivityRepositoryTest {
         assertThat(summaryActivity.getVisibility()).isEqualTo(jsonNode.get("visibility").asText());
         assertThat(summaryActivity.getFlagged()).isEqualTo(jsonNode.get("flagged").asBoolean());
 
-        JsonNode start_latlng = jsonNode.get("start_latlng");
-        for(int i = 0; i < summaryActivity.getStartLatlng().size(); i++) {
-            assertThat(summaryActivity.getStartLatlng().get(i))
-                    .isEqualTo(Double.valueOf(start_latlng.get(i).asDouble()).floatValue());
-        }
+        ArrayNode startLatlngArray = (ArrayNode) jsonNode.get("start_latlng");
+        assertThat(summaryActivity.getStartLatlng().getLatitude()).isEqualTo(startLatlngArray.get(0).asDouble());
+        assertThat(summaryActivity.getStartLatlng().getLongitude()).isEqualTo(startLatlngArray.get(1).asDouble());
 
-        JsonNode end_latlng = jsonNode.get("end_latlng");
-        for(int i = 0; i < summaryActivity.getEndLatlng().size(); i++) {
-            assertThat(summaryActivity.getEndLatlng().get(i))
-                    .isEqualTo(Double.valueOf(end_latlng.get(i).asDouble()).floatValue());
-        }
+        ArrayNode endLatlngArray = (ArrayNode) jsonNode.get("end_latlng");
+        assertThat(summaryActivity.getEndLatlng().getLatitude()).isEqualTo(endLatlngArray.get(0).asDouble());
+        assertThat(summaryActivity.getEndLatlng().getLongitude()).isEqualTo(endLatlngArray.get(1).asDouble());
 
         assertThat(summaryActivity.getStartLatitude())
                 .isEqualTo(Double.valueOf(jsonNode.get("start_latitude").asDouble()).floatValue());
@@ -222,8 +218,8 @@ public class SummaryActivityRepositoryTest {
                 .visibility("everyone")
                 .flagged(false)
                 .gearId(gear.getGearId())
-                .startLatlng(Arrays.asList(53.98855447769165f, -1.5403691679239273f))
-                .endLatlng(Arrays.asList(53.991917967796326f, -1.5421291999518871f))
+                .startLatlng(Latlng.builder().latitude(53.98855447769165).longitude(-1.5403691679239273).build())
+                .endLatlng(Latlng.builder().latitude(53.991917967796326).longitude(-1.5421291999518871).build())
                 .startLatitude(53.98855447769165F)
                 .startLongitude(-1.5421291999518871F)
                 .averageSpeed(5.846F)

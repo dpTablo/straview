@@ -7,9 +7,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class StringListConverterTest {
+public class StringListIntegerConverterTest {
 
-    private final StringListConverter converter = new StringListConverter();
+    private final StringListIntegerConverter converter = new StringListIntegerConverter();
 
     @Test
     public void convertToDatabaseColumn() {

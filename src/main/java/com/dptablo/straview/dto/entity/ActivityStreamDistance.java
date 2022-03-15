@@ -2,7 +2,7 @@ package com.dptablo.straview.dto.entity;
 
 import com.dptablo.straview.dto.enumtype.ActivityStreamResolution;
 import com.dptablo.straview.dto.enumtype.ActivityStreamType;
-import com.dptablo.straview.dto.enumtype.converter.StringListConverter;
+import com.dptablo.straview.dto.enumtype.converter.StringListIntegerConverter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 public class ActivityStreamDistance extends ActivityStream {
     @Column(name = "data")
-    @Convert(converter = StringListConverter.class)
+    @Convert(converter = StringListIntegerConverter.class)
     @JsonProperty("data")
     private List<Integer> data;
 
