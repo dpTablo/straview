@@ -94,4 +94,31 @@ public class GearRepositoryTest {
         assertThat(gearList.get(1).getAthlete().getAthleteId()).isEqualTo(athlete.getAthleteId());
         assertThat(gearList.get(1)).isEqualTo(gear2);
     }
+
+    @Test
+    public void findByGearId() {
+        //given
+        StravaAthlete athlete = StravaAthlete.builder()
+                .athleteId(9485L)
+                .userName("dpTablo")
+                .build();
+
+        Gear gear = Gear.builder()
+                .gearId("b22")
+                .resourceState(2)
+                .name("2021 MERIDA REACTO")
+                .primaryFlag(true)
+                .distance(3889259f)
+                .convertedDistance(3889.3f)
+                .athlete(athlete)
+                .build();
+
+        //when
+        gearRepository.save(gear);
+        Gear foundGear = gearRepository.findByGearId(gear.getGearId())
+                .orElseThrow(NullPointerException::new);
+
+        //then
+        assertThat(foundGear).isEqualTo(gear);
+    }
 }
