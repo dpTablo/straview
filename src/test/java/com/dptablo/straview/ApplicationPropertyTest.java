@@ -30,5 +30,6 @@ public class ApplicationPropertyTest {
         assertThat(applicationProperty.getStravaApiV3Timeout()).isEqualTo(20);
         assertThat(applicationProperty.getStravaApiV3UrlBase()).isEqualTo("https://www.strava.com/api/v3");
         assertThat(applicationProperty.getStravaApiV3UrlAthlete()).isEqualTo("/athlete");
+        assertThat(applicationProperty.getStravaApiV3UrlAthleteActivities()).isEqualTo("/athlete/activities");
     }
 }

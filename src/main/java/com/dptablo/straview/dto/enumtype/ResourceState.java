@@ -1,7 +1,6 @@
 package com.dptablo.straview.dto.enumtype;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
 public enum ResourceState {
