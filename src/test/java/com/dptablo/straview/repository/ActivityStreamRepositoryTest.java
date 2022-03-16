@@ -1,9 +1,6 @@
 package com.dptablo.straview.repository;
 
-import com.dptablo.straview.dto.entity.ActivityStream;
-import com.dptablo.straview.dto.entity.ActivityStreamDistance;
-import com.dptablo.straview.dto.entity.ActivityStreamPK;
-import com.dptablo.straview.dto.entity.SummaryActivity;
+import com.dptablo.straview.dto.entity.*;
 import com.dptablo.straview.dto.enumtype.ActivityStreamResolution;
 import com.dptablo.straview.dto.enumtype.ActivityStreamType;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +22,12 @@ import static org.assertj.core.api.Assertions.*;
 public class ActivityStreamRepositoryTest {
     @Autowired
     private ActivityStreamRepository<ActivityStreamDistance> activityStreamDistanceRepository;
+
+    @Autowired
+    private ActivityStreamRepository<ActivityStreamHeartrate> activityStreamHeartrateRepository;
+
+    @Autowired
+    private ActivityStreamRepository<ActivityStreamWatts> activityStreamWattsActivityStreamRepository;
 
     @Test
     public void save_distance() {
@@ -58,6 +61,68 @@ public class ActivityStreamRepositoryTest {
     }
 
     @Test
+    public void save_heartrate() {
+        //given
+        SummaryActivity activity = SummaryActivity.builder()
+                .activityId(383284L)
+                .build();
+
+        ActivityStreamHeartrate heartrateStream = ActivityStreamHeartrate.builder()
+                .type(ActivityStreamType.HEARTRATE)
+                .summaryActivity(activity)
+                .originalSize(5L)
+                .seriesType(ActivityStreamType.DISTANCE)
+                .resolution(ActivityStreamResolution.HIGH)
+                .data(Arrays.asList(120, 121, 122, 134, 140))
+                .build();
+
+        //when
+        activityStreamHeartrateRepository.save(heartrateStream);
+        ActivityStreamPK pk = new ActivityStreamPK(heartrateStream.getType(), heartrateStream.getSummaryActivity().getActivityId());
+        ActivityStreamHeartrate foundHeartrateStream = activityStreamHeartrateRepository.findById(pk)
+                .orElseThrow(NullPointerException::new);
+
+        //then
+        assertThat(foundHeartrateStream.getType()).isEqualTo(heartrateStream.getType());
+        assertThat(foundHeartrateStream.getSummaryActivity()).isEqualTo(heartrateStream.getSummaryActivity());
+        assertThat(foundHeartrateStream.getData()).isEqualTo(heartrateStream.getData());
+        assertThat(foundHeartrateStream.getOriginalSize()).isEqualTo(heartrateStream.getOriginalSize());
+        assertThat(foundHeartrateStream.getSeriesType()).isEqualTo(heartrateStream.getSeriesType());
+        assertThat(foundHeartrateStream.getResolution()).isEqualTo(heartrateStream.getResolution());
+    }
+
+    @Test
+    public void save_watts() {
+        //given
+        SummaryActivity activity = SummaryActivity.builder()
+                .activityId(383284L)
+                .build();
+
+        ActivityStreamWatts wattsStream = ActivityStreamWatts.builder()
+                .type(ActivityStreamType.WATTS)
+                .summaryActivity(activity)
+                .originalSize(5L)
+                .seriesType(ActivityStreamType.DISTANCE)
+                .resolution(ActivityStreamResolution.HIGH)
+                .data(Arrays.asList(120, 121, 122, 134, 140))
+                .build();
+
+        //when
+        activityStreamWattsActivityStreamRepository.save(wattsStream);
+        ActivityStreamPK pk = new ActivityStreamPK(wattsStream.getType(), wattsStream.getSummaryActivity().getActivityId());
+        ActivityStreamWatts foundWattsStream = activityStreamWattsActivityStreamRepository.findById(pk)
+                .orElseThrow(NullPointerException::new);
+
+        //then
+        assertThat(foundWattsStream.getType()).isEqualTo(wattsStream.getType());
+        assertThat(foundWattsStream.getSummaryActivity()).isEqualTo(wattsStream.getSummaryActivity());
+        assertThat(foundWattsStream.getData()).isEqualTo(wattsStream.getData());
+        assertThat(foundWattsStream.getOriginalSize()).isEqualTo(wattsStream.getOriginalSize());
+        assertThat(foundWattsStream.getSeriesType()).isEqualTo(wattsStream.getSeriesType());
+        assertThat(foundWattsStream.getResolution()).isEqualTo(wattsStream.getResolution());
+    }
+
+    @Test
     public void jsonToObject_distance() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
@@ -83,6 +148,68 @@ public class ActivityStreamRepositoryTest {
         ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
         for(int i = 0; i < distance.getData().size(); i++) {
             Integer objectValue = distance.getData().get(i);
+            Integer jsonValue = dataArray.get(i).asInt();
+            assertThat(objectValue).isEqualTo(jsonValue);
+        }
+    }
+
+    @Test
+    public void jsonToObject_heartrate() throws JsonProcessingException {
+        //given
+        String jsonString = "{\n" +
+                "    \"series_type\": \"heartrate\",\n" +
+                "    \"original_size\": 5,\n" +
+                "    \"resolution\": \"high\",\n" +
+                "    \"data\": [120,121,127,130,135]\n" +
+                "}";
+
+        //when
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
+        ActivityStreamHeartrate heartrateStream = objectMapper.readValue(jsonString, ActivityStreamHeartrate.class);
+
+        //then
+        assertThat(heartrateStream).isNotNull();
+        assertThat(heartrateStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
+        assertThat(heartrateStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
+        assertThat(heartrateStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
+
+        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
+        for(int i = 0; i < heartrateStream.getData().size(); i++) {
+            Integer objectValue = heartrateStream.getData().get(i);
+            Integer jsonValue = dataArray.get(i).asInt();
+            assertThat(objectValue).isEqualTo(jsonValue);
+        }
+    }
+
+    @Test
+    public void jsonToObject_watts() throws JsonProcessingException {
+        //given
+        String jsonString = "{\n" +
+                "    \"series_type\": \"watts\",\n" +
+                "    \"original_size\": 5,\n" +
+                "    \"resolution\": \"high\",\n" +
+                "    \"data\": [120,121,127,130,135]\n" +
+                "}";
+
+        //when
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
+        ActivityStreamWatts wattsStream = objectMapper.readValue(jsonString, ActivityStreamWatts.class);
+
+        //then
+        assertThat(wattsStream).isNotNull();
+        assertThat(wattsStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
+        assertThat(wattsStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
+        assertThat(wattsStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
+
+        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
+        for(int i = 0; i < wattsStream.getData().size(); i++) {
+            Integer objectValue = wattsStream.getData().get(i);
             Integer jsonValue = dataArray.get(i).asInt();
             assertThat(objectValue).isEqualTo(jsonValue);
         }
