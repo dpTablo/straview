@@ -46,9 +46,8 @@ public class ActivityStreamRepositoryTest {
                 .build();
 
         //when
-        activityStreamDistanceRepository.save(distanceStream);
-        ActivityStreamPK pk = new ActivityStreamPK(distanceStream.getType(), distanceStream.getSummaryActivity().getActivityId());
-        ActivityStreamDistance foundDistanceStream = activityStreamDistanceRepository.findById(pk)
+        ActivityStreamDistance savedDistanceStream = activityStreamDistanceRepository.save(distanceStream);
+        ActivityStreamDistance foundDistanceStream = activityStreamDistanceRepository.findById(savedDistanceStream.getStreamId())
                 .orElseThrow(NullPointerException::new);
 
         //then
@@ -77,9 +76,8 @@ public class ActivityStreamRepositoryTest {
                 .build();
 
         //when
-        activityStreamHeartrateRepository.save(heartrateStream);
-        ActivityStreamPK pk = new ActivityStreamPK(heartrateStream.getType(), heartrateStream.getSummaryActivity().getActivityId());
-        ActivityStreamHeartrate foundHeartrateStream = activityStreamHeartrateRepository.findById(pk)
+        ActivityStreamHeartrate savedHeartrateStream = activityStreamHeartrateRepository.save(heartrateStream);
+        ActivityStreamHeartrate foundHeartrateStream = activityStreamHeartrateRepository.findById(savedHeartrateStream.getStreamId())
                 .orElseThrow(NullPointerException::new);
 
         //then
@@ -108,9 +106,8 @@ public class ActivityStreamRepositoryTest {
                 .build();
 
         //when
-        activityStreamWattsActivityStreamRepository.save(wattsStream);
-        ActivityStreamPK pk = new ActivityStreamPK(wattsStream.getType(), wattsStream.getSummaryActivity().getActivityId());
-        ActivityStreamWatts foundWattsStream = activityStreamWattsActivityStreamRepository.findById(pk)
+        ActivityStreamWatts savedWattsStream = activityStreamWattsActivityStreamRepository.save(wattsStream);
+        ActivityStreamWatts foundWattsStream = activityStreamWattsActivityStreamRepository.findById(savedWattsStream.getStreamId())
                 .orElseThrow(NullPointerException::new);
 
         //then

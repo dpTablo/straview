@@ -1,9 +1,9 @@
 package com.dptablo.straview.repository;
 
 import com.dptablo.straview.dto.Latlng;
-import com.dptablo.straview.dto.entity.Gear;
-import com.dptablo.straview.dto.entity.StravaAthlete;
-import com.dptablo.straview.dto.entity.SummaryActivity;
+import com.dptablo.straview.dto.entity.*;
+import com.dptablo.straview.dto.enumtype.ActivityStreamResolution;
+import com.dptablo.straview.dto.enumtype.ActivityStreamType;
 import com.dptablo.straview.dto.enumtype.ResourceState;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -188,8 +191,8 @@ public class SummaryActivityRepositoryTest {
                 .build();
 
         SummaryActivity summaryActivity = SummaryActivity.builder()
-                .activityId(12323L)
-                .athlete(athlete)
+                .manageId(1L)
+                .activityId(12341L)
                 .resourceState(ResourceState.SUMMARY)
                 .name("Zwift - zone2 on Tour Of Tewit Well in Yorkshire")
                 .distance(22102F)
@@ -239,13 +242,31 @@ public class SummaryActivityRepositoryTest {
                 .gear(gear)
                 .build();
 
+        ActivityStreamDistance distanceStream = ActivityStreamDistance.builder()
+                .originalSize(3L)
+                .summaryActivity(summaryActivity)
+                .type(ActivityStreamType.DISTANCE)
+                .resolution(ActivityStreamResolution.HIGH)
+                .seriesType(ActivityStreamType.DISTANCE)
+                .data(Arrays.asList(23,33,44))
+                .build();
+
         //when
         SummaryActivity savedSummaryActivity = summaryActivityRepository.save(summaryActivity);
+        savedSummaryActivity.setActivityStreams(Arrays.asList(distanceStream));
 
         //then
-        SummaryActivity foundSummaryActivity = summaryActivityRepository.findById(savedSummaryActivity.getActivityId())
+        SummaryActivity foundSummaryActivity = summaryActivityRepository.findById(savedSummaryActivity.getManageId())
                 .orElseThrow(NullPointerException::new);
+        assertThat(foundSummaryActivity).isEqualTo(savedSummaryActivity);
+
         assertThat(foundSummaryActivity.getGearId()).isEqualTo(savedSummaryActivity.getGearId());
+
+        List<ActivityStream> activityStreams = foundSummaryActivity.getActivityStreams();
+        assertThat(activityStreams.size()).isEqualTo(1);
+        assertThat(activityStreams.get(0)).isEqualTo(distanceStream);
+
+        assertThat(foundSummaryActivity.getManageId()).isEqualTo(savedSummaryActivity.getManageId());
         assertThat(foundSummaryActivity.getActivityId()).isEqualTo(savedSummaryActivity.getActivityId());
         assertThat(foundSummaryActivity.getResourceState()).isEqualTo(savedSummaryActivity.getResourceState());
         assertThat(foundSummaryActivity.getName()).isEqualTo(savedSummaryActivity.getName());
@@ -292,7 +313,7 @@ public class SummaryActivityRepositoryTest {
         assertThat(foundSummaryActivity.getUploadId()).isEqualTo(savedSummaryActivity.getUploadId());
         assertThat(foundSummaryActivity.getExternalId()).isEqualTo(savedSummaryActivity.getExternalId());
         assertThat(foundSummaryActivity.getHasKudoed()).isEqualTo(savedSummaryActivity.getHasKudoed());
-        assertThat(foundSummaryActivity.getAthlete()).isEqualTo(savedSummaryActivity.getAthlete());
         assertThat(foundSummaryActivity.getGear()).isEqualTo(savedSummaryActivity.getGear());
+        assertThat(foundSummaryActivity.getAthlete()).isEqualTo(savedSummaryActivity.getAthlete());
     }
 }

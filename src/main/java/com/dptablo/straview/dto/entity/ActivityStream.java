@@ -26,19 +26,21 @@ import java.util.Objects;
 @DynamicUpdate
 @Getter
 @Setter
-@IdClass(ActivityStreamPK.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ActivityStream implements Serializable {
     @Id
+    @GeneratedValue
+    @Column(name = "stream_id")
+    private Long streamId;
+
     @Column(name = "type", nullable = false)
     @JsonProperty("type")
     @Convert(converter = ActivityStreamTypeConverter.class)
     private ActivityStreamType type;
 
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "activity_id", nullable = false)
-    @JsonProperty("activity_id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "activity_manage_id", nullable = false)
+    @JsonProperty("activity_manage_id")
     private SummaryActivity summaryActivity;
 
     @Column(name = "original_size")
@@ -53,6 +55,20 @@ public class ActivityStream implements Serializable {
     @Convert(converter = ActivityStreamTypeConverter.class)
     @JsonProperty("series_type")
     private ActivityStreamType seriesType;
+
+    public ActivityStream(
+            ActivityStreamType type,
+            SummaryActivity summaryActivity,
+            Long originalSize,
+            ActivityStreamResolution resolution,
+            ActivityStreamType seriesType
+    ) {
+        this.type = type;
+        this.summaryActivity = summaryActivity;
+        this.originalSize = originalSize;
+        this.resolution = resolution;
+        this.seriesType = seriesType;
+    }
 
     @Override
     public boolean equals(Object o) {

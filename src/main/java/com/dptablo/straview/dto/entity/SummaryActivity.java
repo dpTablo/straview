@@ -4,7 +4,6 @@ import com.dptablo.straview.dto.Latlng;
 import com.dptablo.straview.dto.enumtype.ResourceState;
 import com.dptablo.straview.dto.enumtype.converter.LatlngConverter;
 import com.dptablo.straview.dto.enumtype.converter.ResourceStateConverter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -32,13 +31,28 @@ public class SummaryActivity implements Serializable {
     private String gearId;
 
     @Id
-    @Column(name = "athlete_id", unique = true, nullable = false)
+    @GeneratedValue
+    @Column(name = "manage_id")
+    @JsonProperty("manage_id")
+    private Long manageId;
+
+    @Column(name = "activity_id")
     @JsonProperty("id")
     private Long activityId;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonIgnore
+    @JoinColumn(name = "athlete_id")
     private StravaAthlete athlete;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "gear_id")
+    private Gear gear;
+
+    @OneToMany(mappedBy = "summaryActivity", cascade = CascadeType.ALL)
+    private List<ActivityStream> activityStreams;
+
+    @OneToOne(mappedBy = "activity")
+    private ActivityPowerInfo powerInfo;
 
     @Column(name = "resource_state")
     @Convert(converter = ResourceStateConverter.class)
@@ -223,23 +237,16 @@ public class SummaryActivity implements Serializable {
     @JsonProperty("has_kudoed")
     private Boolean hasKudoed;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "gear_id")
-    private Gear gear;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "summaryActivity", targetEntity = ActivityStream.class)
-    private List<ActivityStream> activityStreams;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SummaryActivity)) return false;
         SummaryActivity that = (SummaryActivity) o;
-        return Objects.equals(activityId, that.activityId);
+        return manageId.equals(that.manageId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(activityId);
+        return Objects.hash(manageId);
     }
 }
