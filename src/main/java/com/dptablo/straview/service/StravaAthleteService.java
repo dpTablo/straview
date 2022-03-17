@@ -25,7 +25,7 @@ public class StravaAthleteService {
 
     /**
      * <p>strava에 인증된 사용자의 선수정보를 요청합니다.</p>
-     * <p>선수정보는 DB에 반영됩니다.</p>
+     * <p>요청받은 선수정보는 DB에 반영됩니다.</p>
      *
      * @return 요청에 성공한 선수정보
      * @throws AuthenticationException
