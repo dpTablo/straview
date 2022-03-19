@@ -11,7 +11,7 @@ public enum StraviewErrorCode {
     STRAVA_TOKEN_EXCHANGE_FAILED(1003, "Strava token exchange failed.", HttpStatus.INTERNAL_SERVER_ERROR),
     STRAVA_TOKEN_REFRESH_FAILED(1004, "Strava token reresh failed.", HttpStatus.INTERNAL_SERVER_ERROR),
     STRAVA_API_REQUEST_FAILED(1100, "Strava API request failed.", HttpStatus.INTERNAL_SERVER_ERROR),
-    SERVER_PROCESSION_ERROR(5000, "Error occurred during server processing.", HttpStatus.INTERNAL_SERVER_ERROR);
+    SERVER_PROCESSING_ERROR(5000, "Error occurred during server processing.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int errorCode;
     private final String description;
