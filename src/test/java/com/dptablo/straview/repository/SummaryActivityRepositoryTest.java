@@ -185,7 +185,7 @@ public class SummaryActivityRepositoryTest {
                 .build();
 
         Gear gear = Gear.builder()
-                .id(12)
+                .manageId(12L)
                 .gearId("b903483")
                 .athlete(athlete)
                 .build();
