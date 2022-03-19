@@ -72,6 +72,9 @@ public class ApplicationProperty {
     @Value("${strava.api.v3.url.athlete.activities}")
     private String stravaApiV3UrlAthleteActivities;
 
+    @Value("${strava.api.v3.url.gear}")
+    private String stravaApiV3UrlGear;
+
     private String clientSecret;
 
     public ApplicationProperty(ApplicationContext applicationContext) {
