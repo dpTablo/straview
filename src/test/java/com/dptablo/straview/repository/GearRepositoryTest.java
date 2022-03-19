@@ -39,10 +39,10 @@ public class GearRepositoryTest {
                 .build();
 
         //when
-        gearRepository.save(gear);
+        Gear savedGear = gearRepository.save(gear);
 
         //then
-        Gear foundGear = gearRepository.findById(gear.getId())
+        Gear foundGear = gearRepository.findById(savedGear.getManageId())
                 .orElseThrow(NullPointerException::new);
 
         assertThat(foundGear.getGearId()).isEqualTo(gear.getGearId());
@@ -115,7 +115,7 @@ public class GearRepositoryTest {
 
         //when
         gearRepository.save(gear);
-        Gear foundGear = gearRepository.findByGearId(gear.getGearId())
+        Gear foundGear = gearRepository.findByGearIdAndAthleteId(gear.getGearId(), gear.getAthlete().getAthleteId())
                 .orElseThrow(NullPointerException::new);
 
         //then

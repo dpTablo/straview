@@ -21,10 +21,10 @@ import java.util.Objects;
 @Setter
 public class Gear implements Serializable {
     @Id
-    @Column(name = "id")
+    @Column(name = "manage_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     @JsonIgnore
-    private Integer id;
+    private Long manageId;
 
     @Column(name = "gear_id")
     @JsonProperty("id")
@@ -59,11 +59,11 @@ public class Gear implements Serializable {
         if (this == o) return true;
         if (!(o instanceof Gear)) return false;
         Gear gear = (Gear) o;
-        return id.equals(gear.id) && gearId.equals(gear.gearId) && athlete.equals(gear.athlete);
+        return manageId.equals(gear.manageId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, gearId, athlete);
+        return Objects.hash(manageId);
     }
 }
