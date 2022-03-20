@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -96,14 +97,14 @@ public class GearRepositoryTest {
     }
 
     @Test
-    public void findByGearId() {
+    public void findByGearIdAndAthleteId() {
         //given
         StravaAthlete athlete = StravaAthlete.builder()
                 .athleteId(9485L)
                 .userName("dpTablo")
                 .build();
 
-        Gear gear = Gear.builder()
+        Gear gear1 = Gear.builder()
                 .gearId("b22")
                 .resourceState(2)
                 .name("2021 MERIDA REACTO")
@@ -113,12 +114,28 @@ public class GearRepositoryTest {
                 .athlete(athlete)
                 .build();
 
+        Gear gear2 = Gear.builder()
+                .gearId("b33")
+                .resourceState(2)
+                .name("2021 MERIDA REACTO")
+                .primaryFlag(true)
+                .distance(3889259f)
+                .convertedDistance(3889.3f)
+                .athlete(athlete)
+                .build();
+
         //when
-        gearRepository.save(gear);
-        Gear foundGear = gearRepository.findByGearIdAndAthleteId(gear.getGearId(), gear.getAthlete().getAthleteId())
+        List<Gear> savedGears = gearRepository.saveAll(Arrays.asList(gear1, gear2));
+
+        Gear foundGear1 = gearRepository.findByGearIdAndAthleteId(gear1.getGearId(), gear1.getAthlete().getAthleteId())
+                .orElseThrow(NullPointerException::new);
+
+        Gear foundGear2 = gearRepository.findByGearIdAndAthleteId(gear1.getGearId(), gear1.getAthlete().getAthleteId())
                 .orElseThrow(NullPointerException::new);
 
         //then
-        assertThat(foundGear).isEqualTo(gear);
+        assertThat(savedGears.size()).isEqualTo(2);
+        assertThat(foundGear1).isEqualTo(savedGears.get(0));
+        assertThat(foundGear2).isEqualTo(savedGears.get(0));
     }
 }

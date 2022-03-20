@@ -26,7 +26,7 @@ public class Gear implements Serializable {
     @JsonIgnore
     private Long manageId;
 
-    @Column(name = "gear_id")
+    @Column(name = "gear_id", nullable = false)
     @JsonProperty("id")
     private String gearId;
 
@@ -51,7 +51,7 @@ public class Gear implements Serializable {
     private Float convertedDistance;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn
+    @JoinColumn(name = "athlete_id", nullable = false)
     private StravaAthlete athlete;
 
     @Override
