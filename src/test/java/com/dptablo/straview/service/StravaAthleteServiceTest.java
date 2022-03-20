@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -41,9 +39,6 @@ public class StravaAthleteServiceTest {
 
     @Mock
     private StravaWebClientFactory stravaWebClientFactory;
-
-    @Spy
-    private StravaAthleteRepository stravaAthleteRepository;
 
     @Mock
     private ApplicationProperty applicationProperty;
@@ -81,7 +76,6 @@ public class StravaAthleteServiceTest {
                 .defaultHeader(HttpHeaders.AUTHORIZATION, authorization)
                 .build();
         given(stravaWebClientFactory.createApiWebClient()).willReturn(webClient);
-        doReturn(apiResultAthlete).when(stravaAthleteRepository).save(any(StravaAthlete.class));
 
         final Dispatcher dispatcher = new Dispatcher() {
             @NotNull
@@ -113,8 +107,6 @@ public class StravaAthleteServiceTest {
         StravaAthlete athlete = service.getLoggedInAthlete();
 
         //then
-        verify(stravaAthleteRepository, times(1)).save(any(StravaAthlete.class));
-
         assertThat(athlete.getAthleteId()).isEqualTo(apiResultAthlete.getAthleteId());
         assertThat(athlete.getResourceState()).isEqualTo(apiResultAthlete.getResourceState());
         assertThat(athlete.getFirstName()).isEqualTo(apiResultAthlete.getFirstName());
