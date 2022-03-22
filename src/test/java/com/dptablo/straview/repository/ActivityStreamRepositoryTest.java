@@ -41,6 +41,9 @@ public class ActivityStreamRepositoryTest {
     @Autowired
     private ActivityStreamRepository<ActivityStreamTime> timeActivityStreamRepository;
 
+    @Autowired
+    private ActivityStreamRepository<ActivityStreamAltitude> altitudeActivityStreamRepository;
+
     @Test
     public void save_distance() {
         //given
@@ -254,6 +257,37 @@ public class ActivityStreamRepositoryTest {
     }
 
     @Test
+    public void save_altitude() {
+        //given
+        SummaryActivity activity = SummaryActivity.builder()
+                .activityId(383284L)
+                .build();
+
+        ActivityStreamAltitude altitudeStream = ActivityStreamAltitude.builder()
+                .type(ActivityStreamType.WATTS)
+                .summaryActivity(activity)
+                .originalSize(5L)
+                .seriesType(ActivityStreamType.DISTANCE)
+                .resolution(ActivityStreamResolution.HIGH)
+                .data(Arrays.asList(5.5f, 6.7f, 7.8f, 8.8f, 9.0f))
+                .build();
+
+        //when
+        ActivityStreamAltitude savedAltitudeStream = altitudeActivityStreamRepository.save(altitudeStream);
+        ActivityStreamAltitude foundAltitudeStream =
+                altitudeActivityStreamRepository.findById(savedAltitudeStream.getStreamId())
+                        .orElseThrow(NullPointerException::new);
+
+        //then
+        assertThat(foundAltitudeStream.getType()).isEqualTo(altitudeStream.getType());
+        assertThat(foundAltitudeStream.getSummaryActivity()).isEqualTo(altitudeStream.getSummaryActivity());
+        assertThat(foundAltitudeStream.getData()).isEqualTo(altitudeStream.getData());
+        assertThat(foundAltitudeStream.getOriginalSize()).isEqualTo(altitudeStream.getOriginalSize());
+        assertThat(foundAltitudeStream.getSeriesType()).isEqualTo(altitudeStream.getSeriesType());
+        assertThat(foundAltitudeStream.getResolution()).isEqualTo(altitudeStream.getResolution());
+    }
+
+    @Test
     public void jsonToObject_distance() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
@@ -350,7 +384,7 @@ public class ActivityStreamRepositoryTest {
     public void jsonToObject_moving() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
-                "    \"series_type\": \"watts\",\n" +
+                "    \"series_type\": \"moving\",\n" +
                 "    \"original_size\": 4,\n" +
                 "    \"resolution\": \"high\",\n" +
                 "    \"data\": [true,false,false,true]\n" +
@@ -381,7 +415,7 @@ public class ActivityStreamRepositoryTest {
     public void jsonToObject_cadence() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
-                "    \"series_type\": \"watts\",\n" +
+                "    \"series_type\": \"cadence\",\n" +
                 "    \"original_size\": 5,\n" +
                 "    \"resolution\": \"high\",\n" +
                 "    \"data\": [66,68,72,80,90]\n" +
@@ -412,7 +446,7 @@ public class ActivityStreamRepositoryTest {
     public void jsonToObject_velocitySmooth() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
-                "    \"series_type\": \"watts\",\n" +
+                "    \"series_type\": \"velocity_smooth\",\n" +
                 "    \"original_size\": 5,\n" +
                 "    \"resolution\": \"high\",\n" +
                 "    \"data\": [6.6,6.7,6.9,7.7,8.8]\n" +
@@ -443,7 +477,7 @@ public class ActivityStreamRepositoryTest {
     public void jsonToObject_time() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
-                "    \"series_type\": \"watts\",\n" +
+                "    \"series_type\": \"time\",\n" +
                 "    \"original_size\": 5,\n" +
                 "    \"resolution\": \"high\",\n" +
                 "    \"data\": [1,2,3,4,5]\n" +
@@ -467,6 +501,37 @@ public class ActivityStreamRepositoryTest {
             Integer objectValue = timeSmoothStream.getData().get(i);
             int jsonValue = dataArray.get(i).asInt();
             assertThat(objectValue).isEqualTo(jsonValue);
+        }
+    }
+
+    @Test
+    public void jsonToObject_altitude() throws JsonProcessingException {
+        //given
+        String jsonString = "{\n" +
+                "    \"series_type\": \"altitude\",\n" +
+                "    \"original_size\": 5,\n" +
+                "    \"resolution\": \"high\",\n" +
+                "    \"data\": [6.6,6.7,6.9,7.7,8.8]\n" +
+                "}";
+
+        //when
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
+        ActivityStreamAltitude altitudeStream = objectMapper.readValue(jsonString, ActivityStreamAltitude.class);
+
+        //then
+        assertThat(altitudeStream).isNotNull();
+        assertThat(altitudeStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
+        assertThat(altitudeStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
+        assertThat(altitudeStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
+
+        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
+        for(int i = 0; i < altitudeStream.getData().size(); i++) {
+            Float objectValue = altitudeStream.getData().get(i);
+            double jsonValue = dataArray.get(i).asDouble();
+            assertThat(objectValue).isEqualTo((float)jsonValue);
         }
     }
 }
