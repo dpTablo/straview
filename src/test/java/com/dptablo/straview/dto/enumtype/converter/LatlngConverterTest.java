@@ -1,6 +1,7 @@
 package com.dptablo.straview.dto.enumtype.converter;
 
 import com.dptablo.straview.dto.Latlng;
+import com.dptablo.straview.dto.converter.LatlngConverter;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;

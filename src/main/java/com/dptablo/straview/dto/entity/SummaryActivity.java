@@ -2,8 +2,8 @@ package com.dptablo.straview.dto.entity;
 
 import com.dptablo.straview.dto.Latlng;
 import com.dptablo.straview.dto.enumtype.ResourceState;
-import com.dptablo.straview.dto.enumtype.converter.LatlngConverter;
-import com.dptablo.straview.dto.enumtype.converter.ResourceStateConverter;
+import com.dptablo.straview.dto.converter.LatlngConverter;
+import com.dptablo.straview.dto.converter.ResourceStateConverter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

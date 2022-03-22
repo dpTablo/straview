@@ -1,4 +1,4 @@
-package com.dptablo.straview.dto.enumtype.converter;
+package com.dptablo.straview.dto.converter;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

@@ -1,6 +1,6 @@
 package com.dptablo.straview.dto.entity;
 
-import com.dptablo.straview.dto.enumtype.converter.RoleSetToStringConverter;
+import com.dptablo.straview.dto.converter.RoleSetToStringConverter;
 import com.dptablo.straview.dto.enumtype.Role;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;

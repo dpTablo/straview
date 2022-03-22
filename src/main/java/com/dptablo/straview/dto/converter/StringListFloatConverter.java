@@ -1,4 +1,4 @@
-package com.dptablo.straview.dto.enumtype.converter;
+package com.dptablo.straview.dto.converter;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -8,20 +8,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Converter
-public class StringListIntegerConverter implements AttributeConverter<List<Integer>, String> {
+public class StringListFloatConverter implements AttributeConverter<List<Float>, String> {
     @Override
-    public String convertToDatabaseColumn(List<Integer> attribute) {
+    public String convertToDatabaseColumn(List<Float> attribute) {
         return attribute.stream()
-                .map(String::valueOf)
+                .map(Object::toString)
                 .collect(Collectors.joining(",", "[", "]"));
     }
 
     @Override
-    public List<Integer> convertToEntityAttribute(String dbData) {
+    public List<Float> convertToEntityAttribute(String dbData) {
         try {
             String[] strings = dbData.substring(1, dbData.length() - 1).split(",");
             return Arrays.stream(strings)
-                    .map(Integer::parseInt)
+                    .map(Float::parseFloat)
                     .collect(Collectors.toList());
         } catch(Exception e) {
             return Collections.emptyList();

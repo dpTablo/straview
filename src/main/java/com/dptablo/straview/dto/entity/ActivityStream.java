@@ -2,7 +2,7 @@ package com.dptablo.straview.dto.entity;
 
 import com.dptablo.straview.dto.enumtype.ActivityStreamResolution;
 import com.dptablo.straview.dto.enumtype.ActivityStreamType;
-import com.dptablo.straview.dto.enumtype.converter.ActivityStreamTypeConverter;
+import com.dptablo.straview.dto.converter.ActivityStreamTypeConverter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

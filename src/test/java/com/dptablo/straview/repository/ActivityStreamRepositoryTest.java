@@ -44,6 +44,8 @@ public class ActivityStreamRepositoryTest {
     @Autowired
     private ActivityStreamRepository<ActivityStreamAltitude> altitudeActivityStreamRepository;
 
+
+
     @Test
     public void save_distance() {
         //given
