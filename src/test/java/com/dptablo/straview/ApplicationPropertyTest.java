@@ -32,5 +32,6 @@ public class ApplicationPropertyTest {
         assertThat(applicationProperty.getStravaApiV3UrlAthlete()).isEqualTo("/athlete");
         assertThat(applicationProperty.getStravaApiV3UrlAthleteActivities()).isEqualTo("/athlete/activities");
         assertThat(applicationProperty.getStravaApiV3UrlGear()).isEqualTo("/gear");
+        assertThat(applicationProperty.getStravaApiV3UrlActivitiesStreams(374L)).isEqualTo("/activities/374/streams");
     }
 }

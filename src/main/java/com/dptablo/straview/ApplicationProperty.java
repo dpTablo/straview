@@ -2,6 +2,7 @@ package com.dptablo.straview;
 
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.exception.StraviewErrorCode;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,6 +76,10 @@ public class ApplicationProperty {
     @Value("${strava.api.v3.url.gear}")
     private String stravaApiV3UrlGear;
 
+    @Getter(AccessLevel.NONE)
+    @Value("${strava.api.v3.url.activities.streams}")
+    private String stravaApiV3UrlActivitiesStreams;
+
     private String clientSecret;
 
     public ApplicationProperty(ApplicationContext applicationContext) {
@@ -89,6 +94,10 @@ public class ApplicationProperty {
             log.error(e.getMessage());
             ((ConfigurableApplicationContext) applicationContext).close();
         }
+    }
+
+    public String getStravaApiV3UrlActivitiesStreams(Long activityId) {
+        return String.format(stravaApiV3UrlActivitiesStreams, activityId);
     }
 
     private String readClientSecretFile() throws AuthenticationException {
