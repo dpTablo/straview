@@ -1,0 +1,39 @@
+package com.dptablo.straview.dto.entity;
+
+import com.dptablo.straview.dto.converter.StringListFloatConverter;
+import com.dptablo.straview.dto.enumtype.ActivityStreamResolution;
+import com.dptablo.straview.dto.enumtype.ActivityStreamType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.util.List;
+
+@Entity(name="activity_stream_grade_smooth")
+@DiscriminatorValue("grade_smooth")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class ActivityStreamGradeSmooth extends ActivityStream {
+    @Column(name = "data")
+    @Convert(converter = StringListFloatConverter.class)
+    @JsonProperty("data")
+    private List<Float> data;
+
+    @Builder
+    public ActivityStreamGradeSmooth(
+            ActivityStreamType type,
+            SummaryActivity summaryActivity,
+            Long originalSize,
+            ActivityStreamResolution resolution,
+            ActivityStreamType seriesType,
+            List<Float> data
+    ) {
+        super(type, summaryActivity, originalSize, resolution, seriesType);
+        this.data = data;
+    }
+}

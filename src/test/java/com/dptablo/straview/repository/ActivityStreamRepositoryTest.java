@@ -50,6 +50,12 @@ public class ActivityStreamRepositoryTest {
     @Autowired
     private ActivityStreamRepository<ActivityStreamLatlng> latlngActivityStreamRepository;
 
+    @Autowired
+    private ActivityStreamRepository<ActivityStreamGradeSmooth> gradeSmoothActivityStreamRepository;
+
+    @Autowired
+    private ActivityStreamRepository<ActivityStreamTemp> tempActivityStreamRepository;
+
     @Test
     public void save_distance() {
         //given
@@ -332,6 +338,68 @@ public class ActivityStreamRepositoryTest {
     }
 
     @Test
+    public void save_gradeSmooth() {
+        //given
+        SummaryActivity activity = SummaryActivity.builder()
+                .activityId(383284L)
+                .build();
+
+        ActivityStreamGradeSmooth gradeSmoothStream = ActivityStreamGradeSmooth.builder()
+                .type(ActivityStreamType.WATTS)
+                .summaryActivity(activity)
+                .originalSize(5L)
+                .seriesType(ActivityStreamType.DISTANCE)
+                .resolution(ActivityStreamResolution.HIGH)
+                .data(Arrays.asList(5.5f, 6.7f, 7.8f, 8.8f, 9.0f))
+                .build();
+
+        //when
+        ActivityStreamGradeSmooth savedGradeSmoothStream =
+                gradeSmoothActivityStreamRepository.save(gradeSmoothStream);
+        ActivityStreamGradeSmooth foundGradeSmoothStream =
+                gradeSmoothActivityStreamRepository.findById(savedGradeSmoothStream.getStreamId())
+                        .orElseThrow(NullPointerException::new);
+
+        //then
+        assertThat(foundGradeSmoothStream.getType()).isEqualTo(gradeSmoothStream.getType());
+        assertThat(foundGradeSmoothStream.getSummaryActivity()).isEqualTo(gradeSmoothStream.getSummaryActivity());
+        assertThat(foundGradeSmoothStream.getData()).isEqualTo(gradeSmoothStream.getData());
+        assertThat(foundGradeSmoothStream.getOriginalSize()).isEqualTo(gradeSmoothStream.getOriginalSize());
+        assertThat(foundGradeSmoothStream.getSeriesType()).isEqualTo(gradeSmoothStream.getSeriesType());
+        assertThat(foundGradeSmoothStream.getResolution()).isEqualTo(gradeSmoothStream.getResolution());
+    }
+
+    @Test
+    public void save_temp() {
+        //given
+        SummaryActivity activity = SummaryActivity.builder()
+                .activityId(383284L)
+                .build();
+
+        ActivityStreamTemp tempStream = ActivityStreamTemp.builder()
+                .type(ActivityStreamType.WATTS)
+                .summaryActivity(activity)
+                .originalSize(4L)
+                .seriesType(ActivityStreamType.DISTANCE)
+                .resolution(ActivityStreamResolution.HIGH)
+                .data(Arrays.asList(23,24,25,23))
+                .build();
+
+        //when
+        ActivityStreamTemp savedTempStream = tempActivityStreamRepository.save(tempStream);
+        ActivityStreamTemp foundTempStream = tempActivityStreamRepository.findById(savedTempStream.getStreamId())
+                .orElseThrow(NullPointerException::new);
+
+        //then
+        assertThat(foundTempStream.getType()).isEqualTo(tempStream.getType());
+        assertThat(foundTempStream.getSummaryActivity()).isEqualTo(tempStream.getSummaryActivity());
+        assertThat(foundTempStream.getData()).isEqualTo(tempStream.getData());
+        assertThat(foundTempStream.getOriginalSize()).isEqualTo(tempStream.getOriginalSize());
+        assertThat(foundTempStream.getSeriesType()).isEqualTo(tempStream.getSeriesType());
+        assertThat(foundTempStream.getResolution()).isEqualTo(tempStream.getResolution());
+    }
+
+    @Test
     public void jsonToObject_distance() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
@@ -608,6 +676,68 @@ public class ActivityStreamRepositoryTest {
             JsonNode node = dataArray.get(i);
             assertThat(objectValue.getLatitude()).isEqualTo(node.get(0).asDouble());
             assertThat(objectValue.getLongitude()).isEqualTo(node.get(1).asDouble());
+        }
+    }
+
+    @Test
+    public void jsonToObject_grade_smooth() throws JsonProcessingException {
+        //given
+        String jsonString = "{\n" +
+                "    \"series_type\": \"velocity_smooth\",\n" +
+                "    \"original_size\": 5,\n" +
+                "    \"resolution\": \"high\",\n" +
+                "    \"data\": [6.6,6.7,6.9,7.7,8.8]\n" +
+                "}";
+
+        //when
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
+        ActivityStreamGradeSmooth gradeSmoothStream = objectMapper.readValue(jsonString, ActivityStreamGradeSmooth.class);
+
+        //then
+        assertThat(gradeSmoothStream).isNotNull();
+        assertThat(gradeSmoothStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
+        assertThat(gradeSmoothStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
+        assertThat(gradeSmoothStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
+
+        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
+        for(int i = 0; i < gradeSmoothStream.getData().size(); i++) {
+            Float objectValue = gradeSmoothStream.getData().get(i);
+            double jsonValue = dataArray.get(i).asDouble();
+            assertThat(objectValue).isEqualTo((float)jsonValue);
+        }
+    }
+
+    @Test
+    public void jsonToObject_temp() throws JsonProcessingException {
+        //given
+        String jsonString = "{\n" +
+                "    \"series_type\": \"cadence\",\n" +
+                "    \"original_size\": 5,\n" +
+                "    \"resolution\": \"high\",\n" +
+                "    \"data\": [23,23,23,24,25]\n" +
+                "}";
+
+        //when
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
+        ActivityStreamTemp cadenceStream = objectMapper.readValue(jsonString, ActivityStreamTemp.class);
+
+        //then
+        assertThat(cadenceStream).isNotNull();
+        assertThat(cadenceStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
+        assertThat(cadenceStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
+        assertThat(cadenceStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
+
+        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
+        for(int i = 0; i < cadenceStream.getData().size(); i++) {
+            Integer objectValue = cadenceStream.getData().get(i);
+            int jsonValue = dataArray.get(i).asInt();
+            assertThat(objectValue).isEqualTo(jsonValue);
         }
     }
 }
