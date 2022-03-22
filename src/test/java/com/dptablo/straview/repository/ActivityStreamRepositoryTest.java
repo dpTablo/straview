@@ -1,5 +1,6 @@
 package com.dptablo.straview.repository;
 
+import com.dptablo.straview.dto.Latlng;
 import com.dptablo.straview.dto.entity.*;
 import com.dptablo.straview.dto.enumtype.ActivityStreamResolution;
 import com.dptablo.straview.dto.enumtype.ActivityStreamType;
@@ -13,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -44,7 +47,8 @@ public class ActivityStreamRepositoryTest {
     @Autowired
     private ActivityStreamRepository<ActivityStreamAltitude> altitudeActivityStreamRepository;
 
-
+    @Autowired
+    private ActivityStreamRepository<ActivityStreamLatlng> latlngActivityStreamRepository;
 
     @Test
     public void save_distance() {
@@ -287,6 +291,44 @@ public class ActivityStreamRepositoryTest {
         assertThat(foundAltitudeStream.getOriginalSize()).isEqualTo(altitudeStream.getOriginalSize());
         assertThat(foundAltitudeStream.getSeriesType()).isEqualTo(altitudeStream.getSeriesType());
         assertThat(foundAltitudeStream.getResolution()).isEqualTo(altitudeStream.getResolution());
+    }
+
+    @Test
+    public void save_latlng() {
+        //given
+        SummaryActivity activity = SummaryActivity.builder()
+                .activityId(383284L)
+                .build();
+
+        List<Latlng> latlngList = new ArrayList<>();
+        latlngList.add(new Latlng(-11.639, 166.944));
+        latlngList.add(new Latlng(-11.633, 166.943));
+        latlngList.add(new Latlng(-11.634, 166.942));
+        latlngList.add(new Latlng(-11.635, 166.941));
+        latlngList.add(new Latlng(-11.637, 166.940));
+
+        ActivityStreamLatlng latlngStream = ActivityStreamLatlng.builder()
+                .type(ActivityStreamType.WATTS)
+                .summaryActivity(activity)
+                .originalSize(5L)
+                .seriesType(ActivityStreamType.DISTANCE)
+                .resolution(ActivityStreamResolution.HIGH)
+                .data(latlngList)
+                .build();
+
+        //when
+        ActivityStreamLatlng savedLatlngStream = latlngActivityStreamRepository.save(latlngStream);
+        ActivityStreamLatlng foundLatlngStream =
+                latlngActivityStreamRepository.findById(savedLatlngStream.getStreamId())
+                        .orElseThrow(NullPointerException::new);
+
+        //then
+        assertThat(foundLatlngStream.getType()).isEqualTo(latlngStream.getType());
+        assertThat(foundLatlngStream.getSummaryActivity()).isEqualTo(latlngStream.getSummaryActivity());
+        assertThat(foundLatlngStream.getData()).isEqualTo(latlngStream.getData());
+        assertThat(foundLatlngStream.getOriginalSize()).isEqualTo(latlngStream.getOriginalSize());
+        assertThat(foundLatlngStream.getSeriesType()).isEqualTo(latlngStream.getSeriesType());
+        assertThat(foundLatlngStream.getResolution()).isEqualTo(latlngStream.getResolution());
     }
 
     @Test
@@ -534,6 +576,38 @@ public class ActivityStreamRepositoryTest {
             Float objectValue = altitudeStream.getData().get(i);
             double jsonValue = dataArray.get(i).asDouble();
             assertThat(objectValue).isEqualTo((float)jsonValue);
+        }
+    }
+
+    @Test
+    public void jsonToObject_latlng() throws JsonProcessingException {
+        //given
+        String jsonString = "{\n" +
+                "    \"series_type\": \"latlng\",\n" +
+                "    \"original_size\": 4,\n" +
+                "    \"resolution\": \"high\",\n" +
+                "    \"data\": [[-11.33,174.22],[-11.334,174.223],[-11.335,174.224],[-11.336,174.225]]\n" +
+                "}";
+
+        //when
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
+        ActivityStreamLatlng latlngStream = objectMapper.readValue(jsonString, ActivityStreamLatlng.class);
+
+        //then
+        assertThat(latlngStream).isNotNull();
+        assertThat(latlngStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
+        assertThat(latlngStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
+        assertThat(latlngStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
+
+        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
+        for(int i = 0; i < latlngStream.getData().size(); i++) {
+            Latlng objectValue = latlngStream.getData().get(i);
+            JsonNode node = dataArray.get(i);
+            assertThat(objectValue.getLatitude()).isEqualTo(node.get(0).asDouble());
+            assertThat(objectValue.getLongitude()).isEqualTo(node.get(1).asDouble());
         }
     }
 }
