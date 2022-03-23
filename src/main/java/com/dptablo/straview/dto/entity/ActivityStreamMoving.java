@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ActivityStreamMoving extends ActivityStream {
-    @Column(name = "data")
+    @Column(name = "data", columnDefinition = "text")
     @Convert(converter = StringListBooleanConverter.class)
     @JsonProperty("data")
     private List<Boolean> data;

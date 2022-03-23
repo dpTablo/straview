@@ -11,7 +11,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalRestControllerAdvice {
     @ExceptionHandler(StraviewException.class)
-    public ResponseEntity<String> defaultExceptionHandler(StraviewException e) {
+    public ResponseEntity<String> straviewExceptionHandler(StraviewException e) {
+        return defaultExceptionProcess(e);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> exceptionHandler(Exception e) {
+        return defaultExceptionProcess(e);
+    }
+
+    private ResponseEntity<String> defaultExceptionProcess(Exception e) {
         log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }

@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ActivityStreamLatlng extends ActivityStream {
-    @Column(name = "data")
+    @Column(name = "data", columnDefinition = "text")
     @Convert(converter = StringListLatlngConverter.class)
     @JsonProperty("data")
     private List<Latlng> data;

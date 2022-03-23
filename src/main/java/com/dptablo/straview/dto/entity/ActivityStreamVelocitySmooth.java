@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ActivityStreamVelocitySmooth extends ActivityStream {
-    @Column(name = "data")
+    @Column(name = "data", columnDefinition = "text")
     @Convert(converter = StringListFloatConverter.class)
     @JsonProperty("data")
     private List<Float> data;

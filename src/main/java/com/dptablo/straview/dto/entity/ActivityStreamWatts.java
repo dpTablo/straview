@@ -19,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ActivityStreamWatts extends ActivityStream {
-    @Column(name = "data")
+    @Column(name = "data", columnDefinition = "text")
     @Convert(converter = StringListIntegerConverter.class)
     @JsonProperty("data")
     private List<Integer> data;
