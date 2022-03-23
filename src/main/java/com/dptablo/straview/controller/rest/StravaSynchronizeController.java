@@ -3,6 +3,7 @@ package com.dptablo.straview.controller.rest;
 import com.dptablo.straview.dto.entity.StravaSyncInfo;
 import com.dptablo.straview.exception.StraviewException;
 import com.dptablo.straview.service.StravaSynchronizeService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,13 +20,8 @@ public class StravaSynchronizeController {
     private final StravaSynchronizeService stravaSynchronizeService;
 
     @GetMapping("/synchronize")
-    public ResponseEntity<StravaSyncInfo> synchronize() {
-        try {
-            StravaSyncInfo syncInfo = stravaSynchronizeService.synchronize();
-            return new ResponseEntity(syncInfo, HttpStatus.OK);
-        } catch(StraviewException e) {
-            log.error(e.getMessage());
-            return new ResponseEntity(null, e.getErrorCode().getHttpStatus());
-        }
+    public ResponseEntity<StravaSyncInfo> synchronize() throws StraviewException, JsonProcessingException {
+        StravaSyncInfo syncInfo = stravaSynchronizeService.synchronize();
+        return new ResponseEntity(syncInfo, HttpStatus.OK);
     }
 }

@@ -2,21 +2,18 @@ package com.dptablo.straview.service;
 
 import com.dptablo.straview.ApplicationProperty;
 import com.dptablo.straview.common.OptionalConsumer;
-import com.dptablo.straview.dto.entity.Gear;
-import com.dptablo.straview.dto.entity.StravaAthlete;
-import com.dptablo.straview.dto.entity.StravaSyncInfo;
-import com.dptablo.straview.dto.entity.SummaryActivity;
+import com.dptablo.straview.dto.entity.*;
+import com.dptablo.straview.dto.enumtype.ActivityStreamType;
 import com.dptablo.straview.exception.AuthenticationException;
 import com.dptablo.straview.exception.StraviewException;
-import com.dptablo.straview.repository.GearRepository;
-import com.dptablo.straview.repository.StravaAthleteRepository;
-import com.dptablo.straview.repository.StravaSyncInfoRepository;
-import com.dptablo.straview.repository.SummaryActivityRepository;
+import com.dptablo.straview.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -24,12 +21,16 @@ import java.util.List;
 public class StravaSynchronizeService {
     public static final int PER_PAGE = 100;
 
-    private final StravaSyncInfoRepository syncInfoRepository;
     private final StravaSummaryActivityService stravaSummaryActivityService;
     private final StravaAthleteService athleteService;
+    private final StravaActivityStreamService stravaActivityStreamService;
+
+    private final StravaSyncInfoRepository syncInfoRepository;
     private final StravaAthleteRepository athleteRepository;
     private final GearRepository gearRepository;
     private final SummaryActivityRepository summaryActivityRepository;
+    private final ActivityStreamRepository activityStreamRepository;
+
     private final ApplicationProperty applicationProperty;
 
     /**
@@ -39,17 +40,31 @@ public class StravaSynchronizeService {
      * @throws StraviewException 동기화 프로세스 과정의 에러
      */
     @Transactional(rollbackFor = StraviewException.class)
-    public StravaSyncInfo synchronize() throws StraviewException {
+    public StravaSyncInfo synchronize() throws StraviewException, JsonProcessingException {
         StravaSyncInfo syncInfo = getSyncInfo();
 
         processingAthleteAndGears();
-        processingActivities(syncInfo);
+        List<SummaryActivity> savedActivities = processingActivities(syncInfo);
+        processingActivityStreams(savedActivities);
         return processingSyncInfo(syncInfo);
     }
 
-    private void processingActivities(StravaSyncInfo syncInfo) throws StraviewException {
+    private List<SummaryActivity> processingActivities(StravaSyncInfo syncInfo) throws StraviewException {
         List<SummaryActivity> activities = stravaSummaryActivityService.getLoggedInAthleteActivities(syncInfo.getSyncEpochTime(), PER_PAGE);
-        summaryActivityRepository.saveAll(activities);
+        return summaryActivityRepository.saveAll(activities);
+    }
+
+    private void processingActivityStreams(List<SummaryActivity> activities) throws AuthenticationException, JsonProcessingException {
+        List<ActivityStreamType> types = Arrays.asList(
+                ActivityStreamType.ALTITUDE, ActivityStreamType.GRADE_SMOOTH, ActivityStreamType.VELOCITY_SMOOTH,
+                ActivityStreamType.TEMP, ActivityStreamType.TIME, ActivityStreamType.LATLNG,
+                ActivityStreamType.CADENCE, ActivityStreamType.HEARTRATE, ActivityStreamType.WATTS,
+                ActivityStreamType.MOVING, ActivityStreamType.DISTANCE);
+
+        for(SummaryActivity activity : activities) {
+            List<ActivityStream> activityStreams = stravaActivityStreamService.getActivityStreams(activity, types);
+            activityStreamRepository.saveAll(activityStreams);
+        }
     }
 
     private StravaSyncInfo getSyncInfo() {
