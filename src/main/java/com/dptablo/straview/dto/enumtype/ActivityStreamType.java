@@ -1,5 +1,6 @@
 package com.dptablo.straview.dto.enumtype;
 
+import com.dptablo.straview.dto.entity.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
@@ -39,5 +40,31 @@ public enum ActivityStreamType {
         return this.name();
     }
 
-
+    public <T extends ActivityStream> Class<T> getActivityStreamEntityClass() {
+        switch(this) {
+            case VELOCITY_SMOOTH:
+                return (Class<T>) ActivityStreamVelocitySmooth.class;
+            case DISTANCE:
+                return (Class<T>) ActivityStreamDistance.class;
+            case WATTS:
+                return (Class<T>) ActivityStreamWatts.class;
+            case HEARTRATE:
+                return (Class<T>) ActivityStreamHeartrate.class;
+            case ALTITUDE:
+                return (Class<T>) ActivityStreamAltitude.class;
+            case CADENCE:
+                return (Class<T>) ActivityStreamCadence.class;
+            case GRADE_SMOOTH:
+                return (Class<T>) ActivityStreamGradeSmooth.class;
+            case LATLNG:
+                return (Class<T>) ActivityStreamLatlng.class;
+            case MOVING:
+                return (Class<T>) ActivityStreamMoving.class;
+            case TEMP:
+                return (Class<T>) ActivityStreamTemp.class;
+            case TIME:
+                return (Class<T>) ActivityStreamTime.class;
+        }
+        return null;
+    }
 }
