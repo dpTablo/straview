@@ -24,6 +24,15 @@ public class StravaActivityStreamService {
     private final StravaWebClientFactory stravaWebClientFactory;
     private final ApplicationProperty applicationProperty;
 
+    /**
+     * <p>Strava의 액티비티에 대한 스트림 데이터를 요청합니다.</p>
+     *
+     * @param activity 조회할 대상 액티비티
+     * @param streamTypes 조회할 스트림 데이터 종류
+     * @return 요청에 성공한 액티비티 스트림 데이터
+     * @throws AuthenticationException
+     * @throws JsonProcessingException
+     */
     public List<ActivityStream> getActivityStreams(SummaryActivity activity, List<ActivityStreamType> streamTypes) throws AuthenticationException, JsonProcessingException {
         WebClient webClient = stravaWebClientFactory.createApiWebClient();
         Mono<JsonNode> jsonNodeMono = webClient.get()
