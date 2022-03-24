@@ -35,17 +35,17 @@ public class ActivityPowerInfo {
     @JsonProperty("average")
     private Integer average;
 
-    @Column(name = "np")
-    @JsonProperty("np")
-    private Integer np;
+    @Column(name = "weighted_average")
+    @JsonProperty("weighted_average")
+    private Integer weightedAverage;
 
-    @Column(name = "if_score")
-    @JsonProperty("if_score")
-    private Float ifScore;
+    @Column(name = "training_intensity")
+    @JsonProperty("training_intensity")
+    private Float trainingIntensity;
 
-    @Column(name = "tss")
-    @JsonProperty("tss")
-    private Float tss;
+    @Column(name = "training_score")
+    @JsonProperty("training_score")
+    private Float trainingScore;
 
     @Column(name = "ftp")
     @JsonProperty("ftp")
@@ -110,6 +110,38 @@ public class ActivityPowerInfo {
     @Column(name = "z7_seconds")
     @JsonProperty("z7_seconds")
     private Integer z7Seconds;
+
+    @Column(name = "z1_max")
+    @JsonProperty("z1_max")
+    private Integer z1Max;
+
+    @Column(name = "z2_max")
+    @JsonProperty("z2_max")
+    private Integer z2Max;
+
+    @Column(name = "z3_max")
+    @JsonProperty("z3_max")
+    private Integer z3Max;
+
+    @Column(name = "z4_max")
+    @JsonProperty("z4_max")
+    private Integer z4Max;
+
+    @Column(name = "z5_max")
+    @JsonProperty("z5_max")
+    private Integer z5Max;
+
+    @Column(name = "z6_max")
+    @JsonProperty("z6_max")
+    private Integer z6Max;
+
+    @Column(name = "z7_min")
+    @JsonProperty("z7_min")
+    private Integer z7Min;
+
+    @Column(name = "elapsed_time")
+    @JsonProperty("elapsed_time")
+    private Integer elapsedTime;
 
     @Override
     public boolean equals(Object o) {

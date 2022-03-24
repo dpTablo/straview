@@ -31,9 +31,9 @@ public class ActivityPowerInfoRepositoryTest {
                 .activity(activity)
                 .max(500)
                 .average(134)
-                .np(174)
-                .ifScore(0.84f)
-                .tss(71.0f)
+                .weightedAverage(174)
+                .trainingIntensity(0.84f)
+                .trainingScore(71.0f)
                 .ftp(208)
                 .kilojoules(541f)
                 .z1Percent(11.0F)
@@ -50,6 +50,14 @@ public class ActivityPowerInfoRepositoryTest {
                 .z5Seconds(55)
                 .z6Seconds(20)
                 .z7Seconds(249)
+                .z1Max(100)
+                .z2Max(130)
+                .z3Max(160)
+                .z4Max(190)
+                .z5Max(230)
+                .z6Max(260)
+                .z7Min(290)
+                .elapsedTime(1800)
                 .build();
 
         //when
@@ -61,9 +69,9 @@ public class ActivityPowerInfoRepositoryTest {
         assertThat(foundPowerInfo).isEqualTo(powerInfo);
         assertThat(foundPowerInfo.getMax()).isEqualTo(powerInfo.getMax());
         assertThat(foundPowerInfo.getAverage()).isEqualTo(powerInfo.getAverage());
-        assertThat(foundPowerInfo.getNp()).isEqualTo(powerInfo.getNp());
-        assertThat(foundPowerInfo.getIfScore()).isEqualTo(powerInfo.getIfScore());
-        assertThat(foundPowerInfo.getTss()).isEqualTo(powerInfo.getTss());
+        assertThat(foundPowerInfo.getWeightedAverage()).isEqualTo(powerInfo.getWeightedAverage());
+        assertThat(foundPowerInfo.getTrainingIntensity()).isEqualTo(powerInfo.getTrainingIntensity());
+        assertThat(foundPowerInfo.getTrainingScore()).isEqualTo(powerInfo.getTrainingScore());
         assertThat(foundPowerInfo.getFtp()).isEqualTo(powerInfo.getFtp());
         assertThat(foundPowerInfo.getKilojoules()).isEqualTo(powerInfo.getKilojoules());
         assertThat(foundPowerInfo.getZ1Percent()).isEqualTo(powerInfo.getZ1Percent());
@@ -80,6 +88,13 @@ public class ActivityPowerInfoRepositoryTest {
         assertThat(foundPowerInfo.getZ5Seconds()).isEqualTo(powerInfo.getZ5Seconds());
         assertThat(foundPowerInfo.getZ6Seconds()).isEqualTo(powerInfo.getZ6Seconds());
         assertThat(foundPowerInfo.getZ7Seconds()).isEqualTo(powerInfo.getZ7Seconds());
-
+        assertThat(foundPowerInfo.getZ1Max()).isEqualTo(powerInfo.getZ1Max());
+        assertThat(foundPowerInfo.getZ2Max()).isEqualTo(powerInfo.getZ2Max());
+        assertThat(foundPowerInfo.getZ3Max()).isEqualTo(powerInfo.getZ3Max());
+        assertThat(foundPowerInfo.getZ4Max()).isEqualTo(powerInfo.getZ4Max());
+        assertThat(foundPowerInfo.getZ5Max()).isEqualTo(powerInfo.getZ5Max());
+        assertThat(foundPowerInfo.getZ6Max()).isEqualTo(powerInfo.getZ6Max());
+        assertThat(foundPowerInfo.getZ7Min()).isEqualTo(powerInfo.getZ7Min());
+        assertThat(foundPowerInfo.getElapsedTime()).isEqualTo(powerInfo.getElapsedTime());
     }
 }

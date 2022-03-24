@@ -237,6 +237,10 @@ public class SummaryActivity implements Serializable {
     @JsonProperty("has_kudoed")
     private Boolean hasKudoed;
 
+    @Column(name = "ftp")
+    @JsonProperty("ftp")
+    private Integer ftp;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

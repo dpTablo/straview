@@ -97,7 +97,8 @@ public class SummaryActivityRepositoryTest {
                 "    \"pr_count\": 5,\n" +
                 "    \"total_photo_count\": 1,\n" +
                 "    \"has_kudoed\": false,\n" +
-                "    \"suffer_score\": 89\n" +
+                "    \"suffer_score\": 89,\n" +
+                "    \"ftp\": 208" +
                 "}";
 
         //when
@@ -174,6 +175,7 @@ public class SummaryActivityRepositoryTest {
         assertThat(summaryActivity.getUploadId()).isEqualTo(jsonNode.get("upload_id").asLong());
         assertThat(summaryActivity.getExternalId()).isEqualTo(jsonNode.get("external_id").asText());
         assertThat(summaryActivity.getHasKudoed()).isEqualTo(jsonNode.get("has_kudoed").asBoolean());
+        assertThat(summaryActivity.getFtp()).isEqualTo(jsonNode.get("ftp").asInt());
     }
 
     @Test
@@ -240,6 +242,7 @@ public class SummaryActivityRepositoryTest {
                 .externalId("zwift-activity-1031927891740327968.fit")
                 .hasKudoed(false)
                 .gear(gear)
+                .ftp(200)
                 .build();
 
         ActivityStreamDistance distanceStream = ActivityStreamDistance.builder()
@@ -315,5 +318,6 @@ public class SummaryActivityRepositoryTest {
         assertThat(foundSummaryActivity.getHasKudoed()).isEqualTo(savedSummaryActivity.getHasKudoed());
         assertThat(foundSummaryActivity.getGear()).isEqualTo(savedSummaryActivity.getGear());
         assertThat(foundSummaryActivity.getAthlete()).isEqualTo(savedSummaryActivity.getAthlete());
+        assertThat(foundSummaryActivity.getFtp()).isEqualTo(savedSummaryActivity.getFtp());
     }
 }
