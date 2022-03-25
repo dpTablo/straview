@@ -45,7 +45,7 @@ public class ActivityPowerInfo {
 
     @Column(name = "training_score")
     @JsonProperty("training_score")
-    private Float trainingScore;
+    private Integer trainingScore;
 
     @Column(name = "ftp")
     @JsonProperty("ftp")
@@ -53,7 +53,7 @@ public class ActivityPowerInfo {
 
     @Column(name = "kilojoules")
     @JsonProperty("kilojoules")
-    private Float kilojoules;
+    private Integer kilojoules;
 
     @Column(name = "z1_percent")
     @JsonProperty("z1_percent")
