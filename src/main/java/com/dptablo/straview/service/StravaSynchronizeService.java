@@ -43,14 +43,15 @@ public class StravaSynchronizeService {
     public StravaSyncInfo synchronize() throws StraviewException, JsonProcessingException {
         StravaSyncInfo syncInfo = getSyncInfo();
 
-        processingAthleteAndGears();
-        List<SummaryActivity> savedActivities = processingActivities(syncInfo);
+        StravaAthlete athlete = processingAthleteAndGears();
+        List<SummaryActivity> savedActivities = processingActivities(syncInfo, athlete);
         processingActivityStreams(savedActivities);
         return processingSyncInfo(syncInfo);
     }
 
-    private List<SummaryActivity> processingActivities(StravaSyncInfo syncInfo) throws StraviewException {
+    private List<SummaryActivity> processingActivities(StravaSyncInfo syncInfo, StravaAthlete athlete) throws StraviewException {
         List<SummaryActivity> activities = stravaSummaryActivityService.getLoggedInAthleteActivities(syncInfo.getSyncEpochTime(), PER_PAGE);
+        activities.forEach(activity -> activity.setFtp(athlete.getFtp()));
         return summaryActivityRepository.saveAll(activities);
     }
 
@@ -81,7 +82,7 @@ public class StravaSynchronizeService {
         return syncInfoRepository.save(syncInfo);
     }
 
-    private void processingAthleteAndGears() throws AuthenticationException {
+    private StravaAthlete processingAthleteAndGears() throws AuthenticationException {
         StravaAthlete athlete = athleteService.getLoggedInAthlete();
 
         //athlete 정보의 bike 에 대한 기존 데이터 pk 매핑
@@ -92,6 +93,6 @@ public class StravaSynchronizeService {
             ).ifPresent(foundGear -> bike.setManageId(foundGear.getManageId()));
         }
 
-        athleteRepository.save(athlete);
+        return athleteRepository.save(athlete);
     }
 }
