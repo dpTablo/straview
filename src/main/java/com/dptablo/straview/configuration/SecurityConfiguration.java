@@ -52,7 +52,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and().authorizeHttpRequests()
                 .antMatchers("/page/**",
                         "/api/auth/authenticate",
-                        "/api/auth/strava/authenticate").permitAll()
+                        "/api/auth/strava/authenticate",
+                        "/swagger-ui/**",
+                        "/api-docs/**").permitAll()
                 .anyRequest().authenticated()
 
             .and().httpBasic().disable();
