@@ -30,9 +30,6 @@ public class ActivityStreamRepositoryTest {
     private ActivityStreamRepository<ActivityStreamHeartrate> activityStreamHeartrateRepository;
 
     @Autowired
-    private ActivityStreamRepository<ActivityStreamWatts> activityStreamWattsActivityStreamRepository;
-
-    @Autowired
     private ActivityStreamRepository<ActivityStreamMoving> movingActivityStreamRepository;
 
     @Autowired
@@ -40,9 +37,6 @@ public class ActivityStreamRepositoryTest {
 
     @Autowired
     private ActivityStreamRepository<ActivityStreamVelocitySmooth> velocitySmoothActivityStreamRepository;
-
-    @Autowired
-    private ActivityStreamRepository<ActivityStreamTime> timeActivityStreamRepository;
 
     @Autowired
     private ActivityStreamRepository<ActivityStreamAltitude> altitudeActivityStreamRepository;
@@ -114,36 +108,6 @@ public class ActivityStreamRepositoryTest {
         assertThat(foundHeartrateStream.getOriginalSize()).isEqualTo(heartrateStream.getOriginalSize());
         assertThat(foundHeartrateStream.getSeriesType()).isEqualTo(heartrateStream.getSeriesType());
         assertThat(foundHeartrateStream.getResolution()).isEqualTo(heartrateStream.getResolution());
-    }
-
-    @Test
-    public void save_watts() {
-        //given
-        SummaryActivity activity = SummaryActivity.builder()
-                .activityId(383284L)
-                .build();
-
-        ActivityStreamWatts wattsStream = ActivityStreamWatts.builder()
-                .type(ActivityStreamType.WATTS)
-                .summaryActivity(activity)
-                .originalSize(5L)
-                .seriesType(ActivityStreamType.DISTANCE)
-                .resolution(ActivityStreamResolution.HIGH)
-                .data(Arrays.asList(120, 121, 122, 134, 140))
-                .build();
-
-        //when
-        ActivityStreamWatts savedWattsStream = activityStreamWattsActivityStreamRepository.save(wattsStream);
-        ActivityStreamWatts foundWattsStream = activityStreamWattsActivityStreamRepository.findById(savedWattsStream.getStreamId())
-                .orElseThrow(NullPointerException::new);
-
-        //then
-        assertThat(foundWattsStream.getType()).isEqualTo(wattsStream.getType());
-        assertThat(foundWattsStream.getSummaryActivity()).isEqualTo(wattsStream.getSummaryActivity());
-        assertThat(foundWattsStream.getData()).isEqualTo(wattsStream.getData());
-        assertThat(foundWattsStream.getOriginalSize()).isEqualTo(wattsStream.getOriginalSize());
-        assertThat(foundWattsStream.getSeriesType()).isEqualTo(wattsStream.getSeriesType());
-        assertThat(foundWattsStream.getResolution()).isEqualTo(wattsStream.getResolution());
     }
 
     @Test
@@ -236,36 +200,6 @@ public class ActivityStreamRepositoryTest {
         assertThat(foundVelocitySmoothStream.getOriginalSize()).isEqualTo(velocitySmoothStream.getOriginalSize());
         assertThat(foundVelocitySmoothStream.getSeriesType()).isEqualTo(velocitySmoothStream.getSeriesType());
         assertThat(foundVelocitySmoothStream.getResolution()).isEqualTo(velocitySmoothStream.getResolution());
-    }
-
-    @Test
-    public void save_time() {
-        //given
-        SummaryActivity activity = SummaryActivity.builder()
-                .activityId(383284L)
-                .build();
-
-        ActivityStreamTime timeStream = ActivityStreamTime.builder()
-                .type(ActivityStreamType.WATTS)
-                .summaryActivity(activity)
-                .originalSize(4L)
-                .seriesType(ActivityStreamType.DISTANCE)
-                .resolution(ActivityStreamResolution.HIGH)
-                .data(Arrays.asList(1, 2, 3, 4))
-                .build();
-
-        //when
-        ActivityStreamTime savedCadenceStream = timeActivityStreamRepository.save(timeStream);
-        ActivityStreamTime foundCadenceStream = timeActivityStreamRepository.findById(savedCadenceStream.getStreamId())
-                .orElseThrow(NullPointerException::new);
-
-        //then
-        assertThat(foundCadenceStream.getType()).isEqualTo(timeStream.getType());
-        assertThat(foundCadenceStream.getSummaryActivity()).isEqualTo(timeStream.getSummaryActivity());
-        assertThat(foundCadenceStream.getData()).isEqualTo(timeStream.getData());
-        assertThat(foundCadenceStream.getOriginalSize()).isEqualTo(timeStream.getOriginalSize());
-        assertThat(foundCadenceStream.getSeriesType()).isEqualTo(timeStream.getSeriesType());
-        assertThat(foundCadenceStream.getResolution()).isEqualTo(timeStream.getResolution());
     }
 
     @Test
@@ -462,37 +396,6 @@ public class ActivityStreamRepositoryTest {
     }
 
     @Test
-    public void jsonToObject_watts() throws JsonProcessingException {
-        //given
-        String jsonString = "{\n" +
-                "    \"series_type\": \"watts\",\n" +
-                "    \"original_size\": 5,\n" +
-                "    \"resolution\": \"high\",\n" +
-                "    \"data\": [120,121,127,130,135]\n" +
-                "}";
-
-        //when
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-
-        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
-        ActivityStreamWatts wattsStream = objectMapper.readValue(jsonString, ActivityStreamWatts.class);
-
-        //then
-        assertThat(wattsStream).isNotNull();
-        assertThat(wattsStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
-        assertThat(wattsStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
-        assertThat(wattsStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
-
-        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
-        for(int i = 0; i < wattsStream.getData().size(); i++) {
-            Integer objectValue = wattsStream.getData().get(i);
-            Integer jsonValue = dataArray.get(i).asInt();
-            assertThat(objectValue).isEqualTo(jsonValue);
-        }
-    }
-
-    @Test
     public void jsonToObject_moving() throws JsonProcessingException {
         //given
         String jsonString = "{\n" +
@@ -582,37 +485,6 @@ public class ActivityStreamRepositoryTest {
             Float objectValue = velocitySmoothStream.getData().get(i);
             double jsonValue = dataArray.get(i).asDouble();
             assertThat(objectValue).isEqualTo((float)jsonValue);
-        }
-    }
-
-    @Test
-    public void jsonToObject_time() throws JsonProcessingException {
-        //given
-        String jsonString = "{\n" +
-                "    \"series_type\": \"time\",\n" +
-                "    \"original_size\": 5,\n" +
-                "    \"resolution\": \"high\",\n" +
-                "    \"data\": [1,2,3,4,5]\n" +
-                "}";
-
-        //when
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-
-        JsonNode jsonNode = objectMapper.readValue(jsonString, JsonNode.class);
-        ActivityStreamTime timeSmoothStream = objectMapper.readValue(jsonString, ActivityStreamTime.class);
-
-        //then
-        assertThat(timeSmoothStream).isNotNull();
-        assertThat(timeSmoothStream.getOriginalSize()).isEqualTo(jsonNode.get("original_size").asLong());
-        assertThat(timeSmoothStream.getSeriesType().getValue()).isEqualTo(jsonNode.get("series_type").asText());
-        assertThat(timeSmoothStream.getResolution().getValue()).isEqualTo(jsonNode.get("resolution").asText());
-
-        ArrayNode dataArray = (ArrayNode) jsonNode.get("data");
-        for(int i = 0; i < timeSmoothStream.getData().size(); i++) {
-            Integer objectValue = timeSmoothStream.getData().get(i);
-            int jsonValue = dataArray.get(i).asInt();
-            assertThat(objectValue).isEqualTo(jsonValue);
         }
     }
 
