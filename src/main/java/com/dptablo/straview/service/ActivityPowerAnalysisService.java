@@ -4,10 +4,11 @@ import com.dptablo.straview.dto.entity.ActivityPowerInfo;
 import com.dptablo.straview.dto.entity.ActivityStreamTime;
 import com.dptablo.straview.dto.entity.ActivityStreamWatts;
 import com.dptablo.straview.dto.entity.SummaryActivity;
-import com.dptablo.straview.repository.ActivityPowerInfoRepository;
+import com.dptablo.straview.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,9 +22,37 @@ import java.util.stream.IntStream;
 @Slf4j
 public class ActivityPowerAnalysisService {
     private final ActivityPowerInfoRepository powerInfoRepository;
+    private final SummaryActivityRepository activityRepository;
+    private final ActivityStreamTimeRepository timeStreamRepository;
+    private final ActivityStreamWattsRepository wattsStreamRepository;
 
-    public Optional<ActivityPowerInfo> analysis(SummaryActivity activity, ActivityStreamTime timeStream, ActivityStreamWatts wattsStream) {
+    /**
+     * <p>액티비의 스트림 데이터를 기반으로 파워 분석정보를 생성합니다.</p>
+     * <p>생성된 정보는 DB에 저장됩니다.</p>
+     * <p>파워 분석정보를 생성하는데 필요한 데이터가 부족한 경우 생성하지 않습니다.</p>
+     * <p>이전에 생성된 정보가 있는 경우 생성하지 않습니다.</p>
+     *
+     * @param activityManageId 액티비티 관리번호
+     * @return 파워 분석정보
+     */
+    @Transactional
+    public Optional<ActivityPowerInfo> analyze(Long activityManageId) {
         try {
+            SummaryActivity activity = activityRepository.findById(activityManageId)
+                    .orElseThrow(() ->
+                            new NullPointerException("Activity not found. (" + activityManageId.toString() + ")"));
+
+            Optional<ActivityPowerInfo> powerInfoOptional = powerInfoRepository.findById(activity.getManageId());
+            if(powerInfoOptional.isPresent()) {
+                return powerInfoOptional;
+            }
+
+            ActivityStreamTime timeStream = timeStreamRepository.findBySummaryActivity(activity)
+                    .orElseThrow(() -> new NullPointerException("ActivityStreamTime is null."));
+
+            ActivityStreamWatts wattsStream = wattsStreamRepository.findBySummaryActivity(activity)
+                    .orElseThrow(() -> new NullPointerException("ActivityStreamWatts is null."));
+
             ActivityPowerInfo powerInfo = ActivityPowerInfo.builder()
                     .activity(activity)
                     .ftp(activity.getFtp())
@@ -54,7 +83,7 @@ public class ActivityPowerAnalysisService {
     private void calculateMax(ActivityPowerInfo powerInfo, ActivityStreamWatts wattsStream) {
         List<Integer> watts = wattsStream.getData();
         int max = watts.stream().mapToInt(v -> v).max()
-                .orElseThrow(NullPointerException::new);
+                .orElseThrow(() -> new NullPointerException("calculateMax - watts stream data is null."));
         powerInfo.setMax(max);
     }
 
@@ -98,7 +127,7 @@ public class ActivityPowerAnalysisService {
     private void calculateAveragePower(ActivityPowerInfo powerInfo, ActivityStreamWatts wattsStream) {
         double averagePower = wattsStream.getData().stream()
                 .mapToInt(v -> v).average()
-                    .orElseThrow(NullPointerException::new);
+                    .orElseThrow(() -> new NullPointerException("calculateAveragePower - watts stream data is null."));
 
         int roundAveragePower = Math.toIntExact(Math.round(averagePower));
         powerInfo.setAverage(roundAveragePower);

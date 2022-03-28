@@ -2,12 +2,13 @@ package com.dptablo.straview.service;
 
 import com.dptablo.straview.dto.entity.*;
 import com.dptablo.straview.dto.enumtype.ActivityStreamType;
-import com.dptablo.straview.repository.ActivityPowerInfoRepository;
+import com.dptablo.straview.repository.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -28,6 +30,12 @@ public class ActivityPowerAnalysisServiceTest {
 
     @Spy
     private ActivityPowerInfoRepository powerInfoRepository;
+
+    @Mock
+    private ActivityStreamTimeRepository timeStreamRepository;
+
+    @Mock
+    private ActivityStreamWattsRepository wattsStreamRepository;
 
     private String readActivityStreamSampleJson() throws IOException {
         Path path = Paths.get("src/test/java/com/dptablo/straview/service/activity_stream_sample.json");
@@ -42,12 +50,13 @@ public class ActivityPowerAnalysisServiceTest {
     }
 
     @Test
-    public void analysis() throws Exception {
+    public void analyze() throws Exception {
         //given
         StravaAthlete athlete = StravaAthlete.builder().build();
 
         SummaryActivity activity = SummaryActivity.builder()
-                .activityId(123L)
+                .manageId(283842L)
+                .activityId(539L)
                 .ftp(208)
                 .build();
 
@@ -62,9 +71,11 @@ public class ActivityPowerAnalysisServiceTest {
         ActivityStreamWatts wattsStream = objectMapper.readValue(wattsNode.toString(), ActivityStreamWatts.class);
 
         given(powerInfoRepository.save(any(ActivityPowerInfo.class))).willAnswer(invocation -> invocation.getArgument(0));
+        given(timeStreamRepository.findBySummaryActivity(activity)).willReturn(Optional.ofNullable(timeStream));
+        given(wattsStreamRepository.findBySummaryActivity(activity)).willReturn(Optional.ofNullable(wattsStream));
 
         //when
-        ActivityPowerInfo powerInfo = powerAnalysisService.analysis(activity, timeStream, wattsStream)
+        ActivityPowerInfo powerInfo = powerAnalysisService.analyze(activity.getManageId())
                 .orElseThrow(NullPointerException::new);
 
         //then
