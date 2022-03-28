@@ -9,8 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -32,6 +35,9 @@ public class JwtAuthenticationServiceTest {
     @Mock
     private ApplicationProperty applicationProperty;
 
+    @Spy
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Test
     public void authenticate() {
         when(applicationProperty.getPrivateKey()).thenReturn("dptablo_straview");
@@ -40,7 +46,7 @@ public class JwtAuthenticationServiceTest {
 
         User user = User.builder()
                 .userId("user1")
-                .password("1111")
+                .password("$2a$10$ETJhCQBaE4Tsmd63zwQBLeUeerH5DFDChGbswHo0HTuU98elAoQRi") //1234
                 .build();
 
         StraviewUserDetails userDetails = StraviewUserDetails.builder()
@@ -48,10 +54,13 @@ public class JwtAuthenticationServiceTest {
                 .password(user.getPassword())
                 .build();
 
-        doReturn(Optional.of(user)).when(userRepository).findUserByUserIdAndPassword("user1", "1111");
+        doReturn(Optional.of(user)).when(userRepository).findById(user.getUserId());
 
-        Optional<String> token = jwtAuthenticationService.authenticate("user1", "1111");
+        Optional<String> token = jwtAuthenticationService.authenticate("user1", "1234");
         assertThat(token.isPresent()).isTrue();
+
+        Optional<String> token2 = jwtAuthenticationService.authenticate("user1", "3456");
+        assertThat(token2.isPresent()).isFalse();
     }
 
     @Test
@@ -62,10 +71,10 @@ public class JwtAuthenticationServiceTest {
 
         User user = User.builder()
                 .userId("user1")
-                .password("1111")
+                .password("$2a$10$ETJhCQBaE4Tsmd63zwQBLeUeerH5DFDChGbswHo0HTuU98elAoQRi")
                 .build();
 
-        doReturn(Optional.of(user)).when(userRepository).findUserByUserIdAndPassword("user1", "1111");
+        doReturn(Optional.of(user)).when(userRepository).findById(user.getUserId());
 
         Optional<String> token = jwtAuthenticationService.authenticate("user1", "1111");
         assertThat(token.isPresent()).isTrue();
@@ -78,7 +87,7 @@ public class JwtAuthenticationServiceTest {
         Set<Role> roles = Stream.of(Role.USER).collect(Collectors.toCollection(HashSet::new));
         User user = User.builder()
                 .userId("user1")
-                .password("1111")
+                .password("$2a$10$ETJhCQBaE4Tsmd63zwQBLeUeerH5DFDChGbswHo0HTuU98elAoQRi") //1234
                 .roles(roles)
                 .build();
 
@@ -101,12 +110,12 @@ public class JwtAuthenticationServiceTest {
         Set<Role> roles = Stream.of(Role.USER).collect(Collectors.toCollection(HashSet::new));
         User user = User.builder()
                 .userId("user1")
-                .password("1111")
+                .password("$2a$10$ETJhCQBaE4Tsmd63zwQBLeUeerH5DFDChGbswHo0HTuU98elAoQRi") //1234
                 .roles(roles)
                 .build();
 
         doReturn(Optional.of(user)).when(userRepository).findById(user.getUserId());
-        doReturn(Optional.of(user)).when(userRepository).findUserByUserIdAndPassword(user.getUserId(), user.getPassword());
+        doReturn(Optional.of(user)).when(userRepository).findById(user.getUserId());
 
         Optional<String> token = jwtAuthenticationService.authenticate(user.getUserId(), user.getPassword());
         assertThat(token.isPresent()).isTrue();

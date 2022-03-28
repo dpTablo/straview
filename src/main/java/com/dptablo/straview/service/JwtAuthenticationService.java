@@ -9,6 +9,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.dptablo.straview.ApplicationProperty;
 import com.dptablo.straview.dto.entity.User;
 import com.dptablo.straview.dto.enumtype.Role;
+import com.dptablo.straview.exception.StraviewErrorCode;
+import com.dptablo.straview.exception.StraviewException;
 import com.dptablo.straview.repository.UserRepository;
 import com.dptablo.straview.security.StraviewUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,6 +33,7 @@ import java.util.stream.Stream;
 public class JwtAuthenticationService {
     private final UserRepository userRepository;
     private final ApplicationProperty applicationProperty;
+    private final PasswordEncoder passwordEncoder;
 
     public User signUp(String userId, String password) {
         Set<Role> roles = Stream.of(Role.USER).collect(Collectors.toCollection(HashSet::new));
@@ -45,14 +49,18 @@ public class JwtAuthenticationService {
 
     public Optional<String> authenticate(String userId, String password) {
         try {
-            User user = userRepository.findUserByUserIdAndPassword(userId, password).orElseThrow(NullPointerException::new);
+            User user = userRepository.findById(userId).orElseThrow(NullPointerException::new);
+            if(passwordEncoder.matches(password, user.getPassword())) {
+                HashSet<GrantedAuthority> authoritySet = user.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority(role.toString()))
+                        .collect(Collectors.toCollection(HashSet::new));
 
-            HashSet<GrantedAuthority> authoritySet = user.getRoles().stream()
-                    .map(role -> new SimpleGrantedAuthority(role.toString()))
-                    .collect(Collectors.toCollection(HashSet::new));
-
-            UserDetails userDetails = createUserDetails(user, authoritySet);
-            return Optional.ofNullable(createToken(userDetails));
+                UserDetails userDetails = createUserDetails(user, authoritySet);
+                return Optional.ofNullable(createToken(userDetails));
+            } else {
+                throw new StraviewException(StraviewErrorCode.AUTHENTICATION_ID_OR_PASSWORD_MISMATCH,
+                        StraviewErrorCode.AUTHENTICATION_ID_OR_PASSWORD_MISMATCH.getDescription());
+            }
         } catch(Exception e) {
             return Optional.empty();
         }

@@ -54,12 +54,6 @@ public class JwtAuthenticationControllerTest {
     @MockBean
     private UserService userService;
 
-    @BeforeEach
-    public void beforeEach() {
-        given(applicationProperty.getStraviewAdminAccount()).willReturn("straview");
-        given(applicationProperty.getStraviewAdminPassword()).willReturn("straview1234");
-    }
-
     @Test
     @WithMockUser(value = "USER")
     public void authenticate() throws Exception {

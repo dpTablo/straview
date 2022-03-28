@@ -35,24 +35,4 @@ class UserRepositoryTest {
         Optional<User> user2 = userRepository.findById(user.getUserId());
         assertThat(user2.isPresent()).isTrue();
     }
-
-    @Test
-    void findUserByUserIdAndPassword() {
-        User user = User.builder()
-                .userId("user1")
-                .password("1111")
-                .build();
-
-        assertThatCode(() -> userRepository.save(user)).doesNotThrowAnyException();
-
-        Optional<User> user1 = userRepository.findUserByUserIdAndPassword("user1","1111");
-        assertThat(user1.isPresent()).isTrue();
-
-        Optional<User> userNotMatchedPassword = userRepository.findUserByUserIdAndPassword("user1","xxxx");
-        assertThat(userNotMatchedPassword.isPresent()).isFalse();
-
-        Optional<User> noUser = userRepository.findUserByUserIdAndPassword("user222","xxxx");
-        assertThat(noUser.isPresent()).isFalse();
-    }
-
 }

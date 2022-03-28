@@ -6,17 +6,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest(
-        classes = { ApplicationProperty.class }
-)
+@SpringBootTest(classes = { ApplicationProperty.class })
 public class ApplicationPropertyTest {
     @Autowired
     private ApplicationProperty applicationProperty;
 
     @Test
     public void test() {
-        assertThat(applicationProperty.getStraviewAdminAccount().length() >= 1).isTrue();
-        assertThat(applicationProperty.getStraviewAdminPassword().length() >= 1).isTrue();
         assertThat(applicationProperty.getPrivateKey()).isEqualTo("dptablo_straview");
         assertThat(applicationProperty.getJwtExpiryMinutes()).isEqualTo(60);
         assertThat(applicationProperty.getIssUser()).isEqualTo("dptablo:straview");
