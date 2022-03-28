@@ -32,6 +32,9 @@ public class ActivityPowerAnalysisServiceTest {
     private ActivityPowerInfoRepository powerInfoRepository;
 
     @Mock
+    private SummaryActivityRepository activityRepository;
+
+    @Mock
     private ActivityStreamTimeRepository timeStreamRepository;
 
     @Mock
@@ -59,6 +62,7 @@ public class ActivityPowerAnalysisServiceTest {
                 .activityId(539L)
                 .ftp(208)
                 .build();
+        given(activityRepository.findById(activity.getManageId())).willReturn(Optional.of(activity));
 
         File jsonFile = Paths.get("src/test/java/com/dptablo/straview/service/activity_stream_sample.json").toFile();
         ObjectMapper objectMapper = new ObjectMapper();
