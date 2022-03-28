@@ -11,6 +11,8 @@ Strava에서 [내 API 애플리케이션](https://www.strava.com/settings/api) �
 ## springdoc
 springdoc Open API를 이용하여 API 명세를 제공합니다.
 
+서버를 기동한 후 `http://{host}/{context}/swagger-ui/index.html` url로 확인할 수 있습니다. 
+
 ## Database PostgreSQL
 DB로 `PostgreSQL`를 사용하였고, docker hub의 [postgres](https://hub.docker.com/_/postgres) docker image 를 이용하였습니다.
 기본적인 테스트는 아래와 같이 docker 컨테이너를 생성하여 테스트할 수 있습니다.
